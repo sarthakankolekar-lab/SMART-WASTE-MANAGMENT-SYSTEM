@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pune Waste Optimizer - Smart Management</title>
+    
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    
+    <!-- Tailwind & Fonts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a130f;
+            min-height: 100vh;
+        }
+        
+        /* Glassmorphism Effects */
+        .glass-nav {
+            background: rgba(16, 34, 25, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 30px -10px rgba(255, 215, 0, 0.2);
+        }
+        
+        .glass-panel {
+            background: rgba(16, 34, 25, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .glass-effect {
+            background: rgba(16, 34, 25, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .nav-link {
+            color: #ffd700;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(180deg, rgba(16, 34, 25, 0.4) 0%, rgba(16, 34, 25, 0.9) 100%);
+        }
+        
+        .map-gradient {
+            background: radial-gradient(circle at center, #1a3326 0%, #102219 100%);
+        }
+        
+        /* Leaflet Map Container */
+        #map, #teamMap, #fullMap {
+            height: 100%;
+            width: 100%;
+            background: #1a2a20;
+        }
+        
+        /* Custom Markers */
+        .bin-marker-lime {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #84cc16;
+            background: rgba(132, 204, 22, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px #84cc16;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 #84cc16; }
+            70% { box-shadow: 0 0 0 15px rgba(132, 204, 22, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(132, 204, 22, 0); }
+        }
+        
+        .user-marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #ffd700;
+            background: rgba(255, 215, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .hq-marker-main {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 4px solid gold;
+            background: rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 25px gold;
+        }
+        
+        .hq-marker-sub {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 4px solid #ffd700;
+            background: rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 20px #ffd700;
+        }
+        
+        /* Route Instructions */
+        .route-instructions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(16, 34, 25, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 1rem;
+            padding: 1rem;
+            z-index: 1000;
+            color: white;
+            display: none;
+        }
+        
+        .route-instructions.show {
+            display: block;
+        }
+        
+        .route-instruction-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            font-size: 0.9rem;
+            color: #ffd700;
+        }
+        
+        .route-instruction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .route-distance {
+            color: #84cc16;
+            font-weight: bold;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        /* Route Loading */
+        .route-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(16, 34, 25, 0.9);
+            backdrop-filter: blur(12px);
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            color: #ffd700;
+            font-weight: 600;
+            z-index: 1000;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            display: none;
+        }
+        
+        .route-loading.show {
+            display: block;
+        }
+        
+        /* View Map Button */
+        .view-map-btn {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd700, #b8860b);
+            color: #0a130f;
+            border: none;
+            cursor: pointer;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: goldPulse 2s infinite;
+        }
+
+        .view-map-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.8);
+        }
+        
+        /* AI Analysis Button */
+        .ai-analysis-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #7e22ce);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .ai-analysis-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.8);
+        }
+        
+        /* Hide elements */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Critical bin cards */
+        .critical-card {
+            background: rgba(16, 34, 25, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .critical-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(239, 68, 68, 0.6);
+            box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.2);
+        }
+        
+        .warning-badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Sidebar fix */
+        .sidebar-fixed {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 16rem;
+            z-index: 50;
+        }
+
+        .main-with-sidebar {
+            margin-left: 16rem;
+            width: calc(100% - 16rem);
+        }
+
+        /* Pop animation */
+        .pop-hover {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .pop-hover:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        /* Gold text */
+        .gold-text {
+            color: #ffd700;
+        }
+
+        .gold-border {
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .gold-bg {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        /* Full height for map containers */
+        .map-full-height {
+            height: calc(100vh - 200px);
+        }
+
+        /* Report Modal */
+        .report-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+        }
+
+        .report-modal.show {
+            display: flex;
+        }
+
+        .report-modal-content {
+            width: 90%;
+            max-width: 500px;
+            background: rgba(16, 34, 25, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes goldPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 215, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-slate-100">
+    <!-- ========== PAGE 1: LANDING PAGE ========== -->
+    <div id="landingPage" class="min-h-screen">
+        <!-- Glassmorphism Navigation Bar -->
+        <nav class="fixed top-0 w-full z-50 glass-nav">
+            <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="size-10 gold-bg rounded-lg flex items-center justify-center border gold-border">
+                        <span class="material-symbols-outlined gold-text text-2xl">eco</span>
+                    </div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-100">Pune<span class="gold-text">Waste</span></h1>
+                </div>
+                <button onclick="showCitizenPage()" class="bg-[#ffd700] hover:bg-[#ffd700]/90 text-background-dark px-6 py-2.5 rounded-lg text-sm font-bold transition-all active:scale-95 shadow-lg shadow-[#ffd700]/20">
+                    Get Started
+                </button>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <main class="relative min-h-screen flex flex-col pt-20">
+            <div class="absolute inset-0 z-0">
+                <div class="absolute inset-0 hero-gradient z-10"></div>
+                <img alt="Modern sustainable city environment" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2070&auto=format&fit=crop">
+            </div>
+            
+            <div class="relative z-20 flex-1 flex flex-col items-center justify-center px-6 text-center max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full gold-bg border gold-border gold-text text-xs font-bold uppercase tracking-widest mb-6">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffd700] opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#ffd700]"></span>
+                    </span>
+                    Live in Pune District
+                </div>
+                
+                <h1 class="text-4xl md:text-7xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight">
+                    Smart Waste Management <br/> <span class="gold-text">for a Cleaner Pune</span>
+                </h1>
+                
+                <p class="text-lg md:text-xl text-slate-300 mb-12 max-w-2xl leading-relaxed">
+                    Optimizing collection, reducing environmental impact, and empowering citizens with real-time data and AI-driven logistics.
+                </p>
+
+                <!-- Action Cards -->
+                <div class="grid md:grid-cols-2 gap-6 w-full max-w-4xl">
+                    <!-- Citizen Card -->
+                    <div onclick="showCitizenPage()" class="glass-card p-8 rounded-2xl text-left group cursor-pointer">
+                        <div class="size-14 rounded-xl gold-bg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined gold-text text-3xl">person_pin_circle</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Citizen Access</h3>
+                        <p class="text-slate-400 mb-6 leading-relaxed">Find nearby smart bins, report overflow levels, and track collection schedules in your area.</p>
+                        <div class="flex items-center gold-text font-semibold text-sm group-hover:gap-2 transition-all">
+                            Launch Citizen Portal <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Municipal Card -->
+                    <div onclick="showTeamLoginPage()" class="glass-card p-8 rounded-2xl text-left group cursor-pointer">
+                        <div class="size-14 rounded-xl gold-bg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined gold-text text-3xl">domain</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Municipal Team</h3>
+                        <p class="text-slate-400 mb-6 leading-relaxed">Comprehensive dashboard for officials to manage fleet routes, bin sensors, and efficiency metrics.</p>
+                        <div class="flex items-center gold-text font-semibold text-sm group-hover:gap-2 transition-all">
+                            Admin Dashboard <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========== PAGE 2: TEAM LOGIN PAGE ========== -->
+    <div id="teamLoginPage" class="hidden min-h-screen">
+        <nav class="glass-nav px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="size-10 gold-bg rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined gold-text">eco</span>
+                </div>
+                <h1 class="text-xl font-bold">Pune<span class="gold-text">Waste</span></h1>
+            </div>
+            <button onclick="showLandingPage()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                <span class="material-symbols-outlined text-sm align-middle">arrow_back</span> Back
+            </button>
+        </nav>
+
+        <div class="flex items-center justify-center min-h-[calc(100vh-80px)] p-6">
+            <div class="glass-panel rounded-3xl p-8 max-w-md w-full">
+                <h2 class="text-2xl font-bold mb-6 text-center gold-text">Team Login</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm text-slate-400 mb-1 block">Email</label>
+                        <input type="email" id="teamEmail" value="admin@pmc.com" class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100 focus:ring-[#ffd700] focus:border-[#ffd700]">
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm text-slate-400 mb-1 block">Password</label>
+                        <input type="password" id="teamPassword" value="password" class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100 focus:ring-[#ffd700] focus:border-[#ffd700]">
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm text-slate-400 mb-1 block">Select HQ</label>
+                        <select id="teamHQ" onchange="loadTowns()" class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100">
+                            <option value="">Select HQ</option>
+                            <option value="Pimpri-Chinchwad">Pimpri-Chinchwad HQ</option>
+                            <option value="Central Pune">Central Pune (PMC Area) HQ</option>
+                            <option value="Hinjewadi">Hinjewadi IT Corridor HQ</option>
+                            <option value="Wagholi-Kharadi">Wagholi–Kharadi Belt HQ</option>
+                            <option value="Talegaon">Talegaon Cluster HQ</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm text-slate-400 mb-1 block">Select Town</label>
+                        <select id="teamTown" class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100">
+                            <option value="">First select HQ</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="teamLogin()" class="w-full bg-[#ffd700] hover:bg-[#ffd700]/90 text-background-dark font-bold py-3 rounded-xl mt-4 transition-all">
+                        Login to Dashboard
+                    </button>
+                    
+                    <p class="text-center text-slate-500 text-sm mt-4">Demo: Any email/password works</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== PAGE 3: TEAM DASHBOARD ========== -->
+    <div id="teamDashboardPage" class="hidden min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar-fixed glass border-r gold-border flex flex-col p-6">
+            <div class="flex items-center gap-3 mb-10">
+                <div class="bg-[#ffd700] p-2 rounded-lg">
+                    <span class="material-symbols-outlined text-background-dark">recycling</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none tracking-tight">Pune Waste</h1>
+                    <p class="gold-text text-[10px] uppercase font-bold tracking-widest">Optimizer v2.0</p>
+                </div>
+            </div>
+            
+            <nav class="flex-1 space-y-2">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-xl gold-bg gold-text border gold-border" href="#">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-medium text-sm">Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 transition-all" href="#">
+                    <span class="material-symbols-outlined">map</span>
+                    <span class="font-medium text-sm">Fleet Map</span>
+                </a>
+            </nav>
+            
+            <div class="mt-auto pt-6 border-t gold-border">
+                <!-- Empty -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-with-sidebar min-h-screen flex flex-col">
+            <!-- Top Nav -->
+            <header class="sticky top-0 z-40 glass border-b gold-border px-8 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-4 flex-1 max-w-xl">
+                    <div class="relative w-full">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input class="w-full bg-white/5 border gold-border rounded-xl py-2 pl-10 pr-4 focus:ring-[#ffd700] focus:border-[#ffd700] text-sm" placeholder="Search bins..." type="text">
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button onclick="logoutTeam()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">logout</span>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="p-8 space-y-8 flex-1">
+                <!-- Stats Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6" id="statsBoxes"></div>
+
+                <!-- Main Area: Split View -->
+                <div class="flex flex-col lg:flex-row gap-8 h-[600px]">
+                    <!-- Left: Bin List -->
+                    <div class="lg:w-1/3 flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold">Bin Monitoring - <span id="townName" class="gold-text"></span></h2>
+                        </div>
+                        <div class="flex-1 overflow-y-auto pr-2 space-y-4" id="teamBinsGrid"></div>
+                    </div>
+
+                    <!-- Right: Map Interface -->
+                    <div class="flex-1 glass-card rounded-3xl overflow-hidden relative">
+                        <div id="teamMap" class="absolute inset-0"></div>
+                        
+                        <!-- Route Instructions -->
+                        <div class="route-instructions" id="routeInstructions">
+                            <h3 class="font-bold gold-text mb-2 flex items-center gap-2">
+                                <span class="material-symbols-outlined">turn_right</span>
+                                Route Instructions
+                            </h3>
+                            <div id="instructionsList"></div>
+                        </div>
+                        
+                        <!-- Map Legend -->
+                        <div class="absolute bottom-6 left-6 z-10">
+                            <div class="glass-panel px-4 py-2 rounded-2xl flex gap-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                    <span class="text-[10px] uppercase font-bold text-slate-400">Critical</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                    <span class="text-[10px] uppercase font-bold text-slate-400">Warning</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-[#84cc16]"></div>
+                                    <span class="text-[10px] uppercase font-bold text-slate-400">Good</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- View Map Button (Bottom Left) -->
+        <button class="view-map-btn" onclick="showFullMapPage()">
+            <span class="material-symbols-outlined">map</span>
+        </button>
+        
+        <!-- AI Analysis Button (Bottom Right) -->
+        <button class="ai-analysis-btn" onclick="showAIAnalysis()">
+            <span class="material-symbols-outlined">auto_awesome</span>
+        </button>
+    </div>
+
+    <!-- ========== PAGE 4: AI ANALYSIS PAGE ========== -->
+    <div id="aiAnalysisPage" class="hidden min-h-screen">
+        <nav class="glass-nav px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="size-10 bg-purple-600/20 rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-purple-500">auto_awesome</span>
+                </div>
+                <h1 class="text-xl font-bold">AI Analysis - Critical Bins (75-100%)</h1>
+            </div>
+            <button onclick="backToTeamDashboard()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
+                <span class="material-symbols-outlined text-sm align-middle">arrow_back</span> Back
+            </button>
+        </nav>
+
+        <div class="p-8">
+            <h2 class="text-2xl font-bold mb-6">Bins Requiring Immediate Attention in <span id="aiTownName" class="gold-text"></span></h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="criticalBinsGrid"></div>
+        </div>
+    </div>
+
+    <!-- ========== PAGE 5: CITIZEN BINS PAGE ========== -->
+    <div id="binsPage" class="hidden min-h-screen">
+        <nav class="glass-nav px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="size-10 gold-bg rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined gold-text">delete</span>
+                </div>
+                <h1 class="text-xl font-bold">Citizen Portal</h1>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="showLandingPage()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
+                    <span class="material-symbols-outlined text-sm align-middle">home</span> Home
+                </button>
+            </div>
+        </nav>
+
+        <div class="p-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined gold-text">near_me</span>
+                Nearest Bins to Your Location
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="binsGrid"></div>
+        </div>
+    </div>
+
+    <!-- ========== PAGE 6: CITIZEN DETAIL PAGE ========== -->
+    <div id="detailPage" class="hidden min-h-screen flex flex-col">
+        <nav class="glass-nav px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="size-10 gold-bg rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined gold-text">delete</span>
+                </div>
+                <h1 class="text-xl font-bold">Bin Details</h1>
+            </div>
+            <button onclick="showBinsPage()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
+                <span class="material-symbols-outlined text-sm align-middle">arrow_back</span> Back to Bins
+            </button>
+        </nav>
+
+        <div class="flex-1 p-8">
+            <div class="flex flex-col lg:flex-row gap-8 h-[calc(100vh-200px)]">
+                <!-- Left: Bin Info -->
+                <div class="lg:w-1/3">
+                    <div class="glass-panel rounded-3xl p-6">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="size-16 gold-bg rounded-2xl flex items-center justify-center">
+                                <span class="material-symbols-outlined gold-text text-4xl">delete</span>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold" id="detailArea">Loading...</h2>
+                                <p class="text-slate-400 text-sm">Click below to update fill level</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-slate-400">Current Fill Level</span>
+                                <span class="font-bold text-2xl" id="detailFill">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                                <div id="detailFillBar" class="bg-[#84cc16] h-full rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <p class="text-sm text-slate-400 mb-3">Update Fill Level:</p>
+                            <div class="flex gap-2 flex-wrap">
+                                <button onclick="updateBinFill(0)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">0%</button>
+                                <button onclick="updateBinFill(25)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">25%</button>
+                                <button onclick="updateBinFill(50)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">50%</button>
+                                <button onclick="updateBinFill(75)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">75%</button>
+                                <button onclick="updateBinFill(100)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">100%</button>
+                            </div>
+                        </div>
+                        
+                        <button onclick="showReportModal()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all pop-hover">
+                            <span class="material-symbols-outlined">warning</span>
+                            Report Overflow
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Right: Map (Full Height) -->
+                <div class="flex-1 glass-card rounded-3xl overflow-hidden relative">
+                    <div id="map" class="absolute inset-0"></div>
+                    
+                    <!-- Route Instructions for Citizen -->
+                    <div class="route-instructions" id="citizenRouteInstructions">
+                        <h3 class="font-bold gold-text mb-2 flex items-center gap-2">
+                            <span class="material-symbols-outlined">turn_right</span>
+                            Route Instructions
+                        </h3>
+                        <div id="citizenInstructionsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== PAGE 7: FULL MAP PAGE (GOLD THEME) ========== -->
+    <div id="fullMapPage" class="hidden full-map-page">
+        <nav class="glass-nav" style="background: rgba(16, 34, 25, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 215, 0, 0.2); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div class="flex items-center gap-3">
+                <div class="size-10 gold-bg rounded-lg flex items-center justify-center border gold-border">
+                    <span class="material-symbols-outlined gold-text text-2xl">map</span>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-100">Pune<span class="gold-text"> Complete Map</span></h1>
+            </div>
+            <button onclick="backToTeamDashboard()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back to Dashboard
+            </button>
+        </nav>
+        <div class="full-map-container" style="height: calc(100vh - 80px); width: 100%; position: relative;">
+            <div id="fullMap" style="height: 100%; width: 100%;"></div>
+        </div>
+    </div>
+
+    <!-- ========== REPORT MODAL (Stitch Design) ========== -->
+    <div class="report-modal" id="reportModal">
+        <div class="report-modal-content">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-white/10 flex justify-between items-start">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-1">Report Bin Overflow</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-[#ffd700] bg-[#ffd700]/10 px-2 py-0.5 rounded">Active Node</span>
+                        <p class="text-slate-400 text-sm font-medium" id="reportBinId">Bin ID: Loading...</p>
+                    </div>
+                </div>
+                <button onclick="closeReportModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
+                <!-- Photo Upload Area -->
+                <div class="group relative border-2 border-dashed border-[#ffd700]/30 rounded-xl p-8 flex flex-col items-center justify-center bg-[#ffd700]/5 hover:bg-[#ffd700]/10 hover:border-[#ffd700]/50 transition-all cursor-pointer">
+                    <div class="mb-4 h-16 w-16 rounded-full bg-[#ffd700]/20 flex items-center justify-center text-[#ffd700] group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-4xl">add_a_photo</span>
+                    </div>
+                    <p class="text-white font-semibold">Click to upload photo</p>
+                    <p class="text-slate-400 text-xs mt-1">Supports JPG, PNG (Max 5MB)</p>
+                </div>
+                
+                <!-- Category Selector -->
+                <div>
+                    <p class="text-slate-100 font-medium mb-3">Select Category</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ffd700] text-background-dark font-bold text-sm shadow-lg shadow-[#ffd700]/20 transition-all" data-category="full">
+                            <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+                            Full Bin
+                        </button>
+                        <button class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-slate-100 hover:bg-white/20 font-medium text-sm transition-all" data-category="trash">
+                            <span class="material-symbols-outlined text-[18px]">cleaning_services</span>
+                            Trash around bin
+                        </button>
+                        <button class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-slate-100 hover:bg-white/20 font-medium text-sm transition-all" data-category="damaged">
+                            <span class="material-symbols-outlined text-[18px]">build</span>
+                            Damaged bin
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Additional Details -->
+                <div class="space-y-2">
+                    <label class="text-slate-100 font-medium text-sm">Additional Details (Optional)</label>
+                    <textarea id="reportDetails" class="w-full bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:ring-[#ffd700] focus:border-[#ffd700] px-4 py-3 text-sm" placeholder="Any specific instructions for the collection team?" rows="3"></textarea>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="p-6 bg-white/5 flex gap-3">
+                <button onclick="closeReportModal()" class="flex-1 px-6 py-3 rounded-lg border border-white/10 text-white font-semibold hover:bg-white/5 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="submitReport()" class="flex-[2] px-6 py-3 rounded-lg bg-[#ffd700] text-background-dark font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">send</span>
+                    Submit Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Route Loading Indicator -->
+    <div class="route-loading" id="routeLoading">
+        <span class="material-symbols-outlined animate-spin align-middle mr-2">progress_activity</span>
+        Calculating route...
+    </div>
+
+    <!-- Font Awesome for icons (needed for full map page) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        // ========== DATA ==========
+        const HQ_DATA = {
+            "Pimpri-Chinchwad": {
+                lat: 18.629781, lng: 73.799709,
+                towns: ["Pimpri", "Chinchwad", "Nigdi", "Akurdi", "Ravet", "Wakad", "Pimple Saudagar", "Rahatani"]
+            },
+            "Central Pune": {
+                lat: 18.507351, lng: 73.807667,
+                towns: ["Kothrud", "Karve Nagar", "Warje", "Bavdhan", "Aundh", "Baner", "Hadapsar"]
+            },
+            "Hinjewadi": {
+                lat: 18.591212, lng: 73.738043,
+                towns: ["Hinjewadi Phase 1", "Hinjewadi Phase 2", "Hinjewadi Phase 3", "Maan", "Marunji"]
+            },
+            "Wagholi-Kharadi": {
+                lat: 18.560244, lng: 73.949646,
+                towns: ["Kharadi", "Wagholi", "Chandan Nagar", "Viman Nagar", "Dhanori"]
+            },
+            "Talegaon": {
+                lat: 18.735043, lng: 73.675704,
+                towns: ["Talegaon Dabhade", "Vadgaon Maval", "Dehu Road", "Somatane", "Indori"]
+            }
+        };
+
+        const MAIN_HQ = { name: "Pune Municipal Corporation", lat: 18.520430, lng: 73.856744 };
+
+        const HELPLINES = {
+            main: "+91 20 1234 5678",
+            "Pimpri-Chinchwad": "+91 20 9876 5432",
+            "Central Pune": "+91 20 5555 6666",
+            "Hinjewadi": "+91 20 4444 5555",
+            "Wagholi-Kharadi": "+91 20 3333 4444",
+            "Talegaon": "+91 20 2222 3333"
+        };
+
+        // Pune Bins Data (300+ bins - abbreviated for space, full data from your previous code)
+        const BINS = [
+            // Pimpri (10 bins)
+            { id: 1, area: "Pimpri - Pimpri Colony", lat: 18.6186, lng: 73.8037, fill: 0 },
+            { id: 2, area: "Pimpri - Sant Tukaram Nagar", lat: 18.6212, lng: 73.8093, fill: 0 },
+            { id: 3, area: "Pimpri - Pimpri Gaothan", lat: 18.6245, lng: 73.8128, fill: 0 },
+            { id: 4, area: "Pimpri - Auto Cluster", lat: 18.6271, lng: 73.8142, fill: 0 },
+            { id: 5, area: "Pimpri - Jaihind Nagar", lat: 18.6198, lng: 73.8075, fill: 0 },
+            { id: 6, area: "Pimpri - Nehru Nagar", lat: 18.6223, lng: 73.8116, fill: 0 },
+            { id: 7, area: "Pimpri - Indrayani Nagar", lat: 18.6264, lng: 73.8091, fill: 0 },
+            { id: 8, area: "Pimpri - Sector 7", lat: 18.6205, lng: 73.8049, fill: 0 },
+            { id: 9, area: "Pimpri - Old Sangvi", lat: 18.6237, lng: 73.8165, fill: 0 },
+            { id: 10, area: "Pimpri - Kasarwadi", lat: 18.6178, lng: 73.8012, fill: 0 },
+
+            // Chinchwad (10 bins)
+            { id: 11, area: "Chinchwad - Chinchwad Gaothan", lat: 18.6324, lng: 73.7847, fill: 0 },
+            { id: 12, area: "Chinchwad - Yamuna Nagar", lat: 18.6358, lng: 73.7872, fill: 0 },
+            { id: 13, area: "Chinchwad - Tata Motors", lat: 18.6382, lng: 73.7895, fill: 0 },
+            { id: 14, area: "Chinchwad - Thergaon", lat: 18.6335, lng: 73.7819, fill: 0 },
+            { id: 15, area: "Chinchwad - Sambhaji Nagar", lat: 18.6367, lng: 73.7923, fill: 0 },
+            { id: 16, area: "Chinchwad - Sant Nagar", lat: 18.6401, lng: 73.7864, fill: 0 },
+            { id: 17, area: "Chinchwad - Khandve Nagar", lat: 18.6342, lng: 73.7889, fill: 0 },
+            { id: 18, area: "Chinchwad - Bhoir Nagar", lat: 18.6375, lng: 73.7917, fill: 0 },
+            { id: 19, area: "Chinchwad - G Block", lat: 18.6393, lng: 73.7841, fill: 0 },
+            { id: 20, area: "Chinchwad - Tanaji Nagar", lat: 18.6416, lng: 73.7883, fill: 0 },
+
+            // Nigdi (10 bins)
+            { id: 21, area: "Nigdi - Nigdi Gaothan", lat: 18.6508, lng: 73.7675, fill: 0 },
+            { id: 22, area: "Nigdi - Pradhikaran", lat: 18.6532, lng: 73.7698, fill: 0 },
+            { id: 23, area: "Nigdi - Sector 24", lat: 18.6564, lng: 73.7721, fill: 0 },
+            { id: 24, area: "Nigdi - Sai Chowk", lat: 18.6495, lng: 73.7652, fill: 0 },
+            { id: 25, area: "Nigdi - Jijamata Colony", lat: 18.6547, lng: 73.7745, fill: 0 },
+            { id: 26, area: "Nigdi - Jai Bhavani Nagar", lat: 18.6579, lng: 73.7668, fill: 0 },
+            { id: 27, area: "Nigdi - Shastrinagar", lat: 18.6516, lng: 73.7712, fill: 0 },
+            { id: 28, area: "Nigdi - Chafekar Chowk", lat: 18.6553, lng: 73.7689, fill: 0 },
+            { id: 29, area: "Nigdi - Gopal Nagar", lat: 18.6489, lng: 73.7641, fill: 0 },
+            { id: 30, area: "Nigdi - Tukaram Nagar", lat: 18.6586, lng: 73.7705, fill: 0 },
+
+            // Akurdi (10 bins)
+            { id: 31, area: "Akurdi - Akurdi Railway Station", lat: 18.6458, lng: 73.7792, fill: 0 },
+            { id: 32, area: "Akurdi - Sector 28", lat: 18.6482, lng: 73.7815, fill: 0 },
+            { id: 33, area: "Akurdi - Vaishali Nagar", lat: 18.6514, lng: 73.7838, fill: 0 },
+            { id: 34, area: "Akurdi - Vallabh Nagar", lat: 18.6475, lng: 73.7769, fill: 0 },
+            { id: 35, area: "Akurdi - DIC", lat: 18.6498, lng: 73.7851, fill: 0 },
+            { id: 36, area: "Akurdi - Sagar Colony", lat: 18.6531, lng: 73.7784, fill: 0 },
+            { id: 37, area: "Akurdi - Ganesh Nagar", lat: 18.6467, lng: 73.7823, fill: 0 },
+            { id: 38, area: "Akurdi - Hanuman Nagar", lat: 18.6502, lng: 73.7776, fill: 0 },
+            { id: 39, area: "Akurdi - Jai Ganesh Nagar", lat: 18.6528, lng: 73.7862, fill: 0 },
+            { id: 40, area: "Akurdi - Shivajinagar", lat: 18.6489, lng: 73.7799, fill: 0 },
+
+            // Ravet (10 bins)
+            { id: 41, area: "Ravet - Ravet Gaothan", lat: 18.6623, lng: 73.7502, fill: 0 },
+            { id: 42, area: "Ravet - Sai Chowk", lat: 18.6645, lng: 73.7528, fill: 0 },
+            { id: 43, area: "Ravet - Siddharth Nagar", lat: 18.6671, lng: 73.7485, fill: 0 },
+            { id: 44, area: "Ravet - Datta Nagar", lat: 18.6608, lng: 73.7541, fill: 0 },
+            { id: 45, area: "Ravet - Ganesh Nagar", lat: 18.6636, lng: 73.7473, fill: 0 },
+            { id: 46, area: "Ravet - Sant Nagar", lat: 18.6659, lng: 73.7555, fill: 0 },
+            { id: 47, area: "Ravet - Jai Bhavani Nagar", lat: 18.6684, lng: 73.7498, fill: 0 },
+            { id: 48, area: "Ravet - Shiv Colony", lat: 18.6615, lng: 73.7521, fill: 0 },
+            { id: 49, area: "Ravet - Ravet Road", lat: 18.6649, lng: 73.7459, fill: 0 },
+            { id: 50, area: "Ravet - Jaihind Nagar", lat: 18.6678, lng: 73.7532, fill: 0 },
+
+            // Wakad (10 bins)
+            { id: 51, area: "Wakad - Dange Chowk", lat: 18.5992, lng: 73.7628, fill: 0 },
+            { id: 52, area: "Wakad - Wakad Road", lat: 18.6025, lng: 73.7683, fill: 0 },
+            { id: 53, area: "Wakad - Tatwade", lat: 18.6048, lng: 73.7584, fill: 0 },
+            { id: 54, area: "Wakad - Bus Stand", lat: 18.5969, lng: 73.7647, fill: 0 },
+            { id: 55, area: "Wakad - Shankar Kalat Nagar", lat: 18.5985, lng: 73.7661, fill: 0 },
+            { id: 56, area: "Wakad - Mahalunge Road", lat: 18.6018, lng: 73.7605, fill: 0 },
+            { id: 57, area: "Wakad - Ganganagar", lat: 18.6052, lng: 73.7692, fill: 0 },
+            { id: 58, area: "Wakad - Marunji Road", lat: 18.5976, lng: 73.7559, fill: 0 },
+            { id: 59, area: "Wakad - Shitole Nagar", lat: 18.6004, lng: 73.7715, fill: 0 },
+            { id: 60, area: "Wakad - Radha Nagar", lat: 18.6039, lng: 73.7572, fill: 0 },
+
+            // Pimple Saudagar (10 bins)
+            { id: 61, area: "Pimple Saudagar - Rahatani", lat: 18.5918, lng: 73.7953, fill: 0 },
+            { id: 62, area: "Pimple Saudagar - Kalewadi", lat: 18.5942, lng: 73.7894, fill: 0 },
+            { id: 63, area: "Pimple Saudagar - Vishal Nagar", lat: 18.5966, lng: 73.7927, fill: 0 },
+            { id: 64, area: "Pimple Saudagar - Pimple Gurav", lat: 18.5889, lng: 73.7978, fill: 0 },
+            { id: 65, area: "Pimple Saudagar - New Sangvi", lat: 18.5935, lng: 73.7862, fill: 0 },
+            { id: 66, area: "Pimple Saudagar - Sainath Nagar", lat: 18.5971, lng: 73.7941, fill: 0 },
+            { id: 67, area: "Pimple Saudagar - Shastri Nagar", lat: 18.5904, lng: 73.7915, fill: 0 },
+            { id: 68, area: "Pimple Saudagar - Jai Ganesh Nagar", lat: 18.5953, lng: 73.7982, fill: 0 },
+            { id: 69, area: "Pimple Saudagar - Ganesh Nagar", lat: 18.5927, lng: 73.7878, fill: 0 },
+            { id: 70, area: "Pimple Saudagar - Gurudwara Chowk", lat: 18.5984, lng: 73.7909, fill: 0 },
+
+            // Rahatani (10 bins)
+            { id: 71, area: "Rahatani - Rahatani Gaothan", lat: 18.5882, lng: 73.7826, fill: 0 },
+            { id: 72, area: "Rahatani - Pimple Nilakh", lat: 18.5856, lng: 73.7798, fill: 0 },
+            { id: 73, area: "Rahatani - Vidya Nagar", lat: 18.5901, lng: 73.7852, fill: 0 },
+            { id: 74, area: "Rahatani - Kokane Chowk", lat: 18.5874, lng: 73.7773, fill: 0 },
+            { id: 75, area: "Rahatani - Rajyog Nagar", lat: 18.5925, lng: 73.7839, fill: 0 },
+            { id: 76, area: "Rahatani - Ganesh Nagar", lat: 18.5897, lng: 73.7811, fill: 0 },
+            { id: 77, area: "Rahatani - Sai Nagar", lat: 18.5849, lng: 73.7765, fill: 0 },
+            { id: 78, area: "Rahatani - Shivaji Nagar", lat: 18.5938, lng: 73.7884, fill: 0 },
+            { id: 79, area: "Rahatani - Jaihind Nagar", lat: 18.5868, lng: 73.7802, fill: 0 },
+            { id: 80, area: "Rahatani - Sant Tukaram Nagar", lat: 18.5912, lng: 73.7748, fill: 0 },
+
+            // Kothrud (10 bins)
+            { id: 81, area: "Kothrud - DP Road", lat: 18.5076, lng: 73.8074, fill: 0 },
+            { id: 82, area: "Kothrud - Karve Nagar", lat: 18.5114, lng: 73.8152, fill: 0 },
+            { id: 83, area: "Kothrud - Vanaz", lat: 18.5147, lng: 73.8121, fill: 0 },
+            { id: 84, area: "Kothrud - Mayur Colony", lat: 18.5096, lng: 73.8025, fill: 0 },
+            { id: 85, area: "Kothrud - Paud Road", lat: 18.5128, lng: 73.8059, fill: 0 },
+            { id: 86, area: "Kothrud - Rambaug Colony", lat: 18.5089, lng: 73.8103, fill: 0 },
+            { id: 87, area: "Kothrud - Ideal Colony", lat: 18.5152, lng: 73.8087, fill: 0 },
+            { id: 88, area: "Kothrud - Landewadi", lat: 18.5103, lng: 73.8138, fill: 0 },
+            { id: 89, area: "Kothrud - Anand Nagar", lat: 18.5135, lng: 73.8014, fill: 0 },
+            { id: 90, area: "Kothrud - Gokhale Nagar", lat: 18.5171, lng: 73.8062, fill: 0 },
+
+            // Karve Nagar (10 bins)
+            { id: 91, area: "Karve Nagar - Karve Nagar Bus Stand", lat: 18.4896, lng: 73.8158, fill: 0 },
+            { id: 92, area: "Karve Nagar - Hingne Budrukh", lat: 18.4923, lng: 73.8192, fill: 0 },
+            { id: 93, area: "Karve Nagar - Gujrat Colony", lat: 18.4957, lng: 73.8225, fill: 0 },
+            { id: 94, area: "Karve Nagar - Kothrud Depot", lat: 18.4981, lng: 73.8173, fill: 0 },
+            { id: 95, area: "Karve Nagar - Warje Malwadi", lat: 18.4865, lng: 73.8139, fill: 0 },
+            { id: 96, area: "Karve Nagar - Cummins College", lat: 18.4902, lng: 73.8211, fill: 0 },
+            { id: 97, area: "Karve Nagar - Sahakar Nagar", lat: 18.4938, lng: 73.8247, fill: 0 },
+            { id: 98, area: "Karve Nagar - Tekdi Colony", lat: 18.4974, lng: 73.8185, fill: 0 },
+            { id: 99, area: "Karve Nagar - Shastri Nagar", lat: 18.4889, lng: 73.8163, fill: 0 },
+            { id: 100, area: "Karve Nagar - Ganesh Nagar", lat: 18.4945, lng: 73.8208, fill: 0 },
+
+            // Warje (10 bins)
+            { id: 101, area: "Warje - Warje Gaothan", lat: 18.4752, lng: 73.7965, fill: 0 },
+            { id: 102, area: "Warje - Malwadi", lat: 18.4785, lng: 73.7998, fill: 0 },
+            { id: 103, area: "Warje - Kakde City", lat: 18.4817, lng: 73.8032, fill: 0 },
+            { id: 104, area: "Warje - Warje Chowk", lat: 18.4738, lng: 73.7941, fill: 0 },
+            { id: 105, area: "Warje - Siddharth Nagar", lat: 18.4769, lng: 73.7978, fill: 0 },
+            { id: 106, area: "Warje - Shivaji Nagar", lat: 18.4802, lng: 73.8014, fill: 0 },
+            { id: 107, area: "Warje - Gokul Nagar", lat: 18.4835, lng: 73.8051, fill: 0 },
+            { id: 108, area: "Warje - Anand Nagar", lat: 18.4778, lng: 73.7932, fill: 0 },
+            { id: 109, area: "Warje - Sainath Nagar", lat: 18.4811, lng: 73.7968, fill: 0 },
+            { id: 110, area: "Warje - Hanuman Nagar", lat: 18.4843, lng: 73.7995, fill: 0 },
+
+            // Bavdhan (10 bins)
+            { id: 111, area: "Bavdhan - Bavdhan Gaothan", lat: 18.5138, lng: 73.7824, fill: 0 },
+            { id: 112, area: "Bavdhan - Khadi Machine Chowk", lat: 18.5162, lng: 73.7858, fill: 0 },
+            { id: 113, area: "Bavdhan - Pristine Prose", lat: 18.5195, lng: 73.7792, fill: 0 },
+            { id: 114, area: "Bavdhan - Blue Ridge", lat: 18.5149, lng: 73.7881, fill: 0 },
+            { id: 115, area: "Bavdhan - Sai Nagar", lat: 18.5173, lng: 73.7815, fill: 0 },
+            { id: 116, area: "Bavdhan - Rajyog Nagar", lat: 18.5115, lng: 73.7847, fill: 0 },
+            { id: 117, area: "Bavdhan - Shivane Road", lat: 18.5156, lng: 73.7778, fill: 0 },
+            { id: 118, area: "Bavdhan - Anand Nagar", lat: 18.5189, lng: 73.7864, fill: 0 },
+            { id: 119, area: "Bavdhan - Ganesh Nagar", lat: 18.5127, lng: 73.7803, fill: 0 },
+            { id: 120, area: "Bavdhan - Om Nagar", lat: 18.5168, lng: 73.7892, fill: 0 },
+
+            // Aundh (10 bins)
+            { id: 121, area: "Aundh - ITI Road", lat: 18.5614, lng: 73.8076, fill: 0 },
+            { id: 122, area: "Aundh - Parihar Chowk", lat: 18.5648, lng: 73.8119, fill: 0 },
+            { id: 123, area: "Aundh - DAV School", lat: 18.5672, lng: 73.8028, fill: 0 },
+            { id: 124, area: "Aundh - Ganesh Nagar", lat: 18.5596, lng: 73.8142, fill: 0 },
+            { id: 125, area: "Aundh - Aundh Gaothan", lat: 18.5629, lng: 73.8051, fill: 0 },
+            { id: 126, area: "Aundh - Marathi School", lat: 18.5653, lng: 73.8098, fill: 0 },
+            { id: 127, area: "Aundh - Vidya Nagar", lat: 18.5685, lng: 73.8125, fill: 0 },
+            { id: 128, area: "Aundh - New DP Road", lat: 18.5608, lng: 73.8034, fill: 0 },
+            { id: 129, area: "Aundh - Central Avenue", lat: 18.5632, lng: 73.8158, fill: 0 },
+            { id: 130, area: "Aundh - Jai Ganesh Nagar", lat: 18.5666, lng: 73.8067, fill: 0 },
+
+            // Baner (10 bins)
+            { id: 131, area: "Baner - Balewadi Phata", lat: 18.5587, lng: 73.7864, fill: 0 },
+            { id: 132, area: "Baner - IT Park", lat: 18.5621, lng: 73.7815, fill: 0 },
+            { id: 133, area: "Baner - Joggers Park", lat: 18.5643, lng: 73.7892, fill: 0 },
+            { id: 134, area: "Baner - Prime Square", lat: 18.5599, lng: 73.7768, fill: 0 },
+            { id: 135, area: "Baner - Baner Gaothan", lat: 18.5612, lng: 73.7839, fill: 0 },
+            { id: 136, area: "Baner - Pashan Link Road", lat: 18.5575, lng: 73.7881, fill: 0 },
+            { id: 137, area: "Baner - Mahalunge Road", lat: 18.5638, lng: 73.7793, fill: 0 },
+            { id: 138, area: "Baner - Shastri Nagar", lat: 18.5605, lng: 73.7917, fill: 0 },
+            { id: 139, area: "Baner - Ganesh Nagar", lat: 18.5581, lng: 73.7846, fill: 0 },
+            { id: 140, area: "Baner - Hanuman Nagar", lat: 18.5654, lng: 73.7872, fill: 0 },
+
+            // Hadapsar (10 bins)
+            { id: 141, area: "Hadapsar - Hadapsar Gaothan", lat: 18.5082, lng: 73.9258, fill: 0 },
+            { id: 142, area: "Hadapsar - Magarpatta City", lat: 18.5115, lng: 73.9283, fill: 0 },
+            { id: 143, area: "Hadapsar - Amanora Town", lat: 18.5147, lng: 73.9306, fill: 0 },
+            { id: 144, area: "Hadapsar - Fursungi", lat: 18.5059, lng: 73.9224, fill: 0 },
+            { id: 145, area: "Hadapsar - Saswad Road", lat: 18.5093, lng: 73.9331, fill: 0 },
+            { id: 146, area: "Hadapsar - Kirtane Nagar", lat: 18.5126, lng: 73.9197, fill: 0 },
+            { id: 147, area: "Hadapsar - Ghorpadi", lat: 18.5162, lng: 73.9215, fill: 0 },
+            { id: 148, area: "Hadapsar - Solapur Road", lat: 18.5068, lng: 73.9269, fill: 0 },
+            { id: 149, area: "Hadapsar - Laxmi Nagar", lat: 18.5134, lng: 73.9242, fill: 0 },
+            { id: 150, area: "Hadapsar - Sai Nagar", lat: 18.5101, lng: 73.9178, fill: 0 },
+
+            // Hinjewadi Phase 1 (10 bins)
+            { id: 151, area: "Hinjewadi Phase 1 - Rajiv Gandhi Infotech Park", lat: 18.5915, lng: 73.7412, fill: 0 },
+            { id: 152, area: "Hinjewadi Phase 1 - Hinjewadi Chowk", lat: 18.5938, lng: 73.7445, fill: 0 },
+            { id: 153, area: "Hinjewadi Phase 1 - MIDC", lat: 18.5962, lng: 73.7389, fill: 0 },
+            { id: 154, area: "Hinjewadi Phase 1 - Shinde Nagar", lat: 18.5889, lng: 73.7428, fill: 0 },
+            { id: 155, area: "Hinjewadi Phase 1 - Jijai Nagar", lat: 18.5945, lng: 73.7363, fill: 0 },
+            { id: 156, area: "Hinjewadi Phase 1 - Ganesh Nagar", lat: 18.5902, lng: 73.7456, fill: 0 },
+            { id: 157, area: "Hinjewadi Phase 1 - Sant Nagar", lat: 18.5974, lng: 73.7397, fill: 0 },
+            { id: 158, area: "Hinjewadi Phase 1 - Sai Nagar", lat: 18.5928, lng: 73.7434, fill: 0 },
+            { id: 159, area: "Hinjewadi Phase 1 - Ashok Nagar", lat: 18.5896, lng: 73.7378, fill: 0 },
+            { id: 160, area: "Hinjewadi Phase 1 - Ram Nagar", lat: 18.5951, lng: 73.7419, fill: 0 },
+
+            // Hinjewadi Phase 2 (10 bins)
+            { id: 161, area: "Hinjewadi Phase 2 - Infosys", lat: 18.5958, lng: 73.7352, fill: 0 },
+            { id: 162, area: "Hinjewadi Phase 2 - Wipro", lat: 18.5982, lng: 73.7325, fill: 0 },
+            { id: 163, area: "Hinjewadi Phase 2 - Tech Mahindra", lat: 18.6005, lng: 73.7298, fill: 0 },
+            { id: 164, area: "Hinjewadi Phase 2 - Maan Road", lat: 18.5934, lng: 73.7337, fill: 0 },
+            { id: 165, area: "Hinjewadi Phase 2 - Kolhewadi", lat: 18.5969, lng: 73.7371, fill: 0 },
+            { id: 166, area: "Hinjewadi Phase 2 - Tata Technologies", lat: 18.6013, lng: 73.7314, fill: 0 },
+            { id: 167, area: "Hinjewadi Phase 2 - Laxmi Nagar", lat: 18.5947, lng: 73.7346, fill: 0 },
+            { id: 168, area: "Hinjewadi Phase 2 - Shivar Garden", lat: 18.5989, lng: 73.7283, fill: 0 },
+            { id: 169, area: "Hinjewadi Phase 2 - Ganga Nagar", lat: 18.5923, lng: 73.7368, fill: 0 },
+            { id: 170, area: "Hinjewadi Phase 2 - Yamuna Nagar", lat: 18.5975, lng: 73.7309, fill: 0 },
+
+            // Hinjewadi Phase 3 (10 bins)
+            { id: 171, area: "Hinjewadi Phase 3 - TCS", lat: 18.5989, lng: 73.7287, fill: 0 },
+            { id: 172, area: "Hinjewadi Phase 3 - IBM", lat: 18.6012, lng: 73.7261, fill: 0 },
+            { id: 173, area: "Hinjewadi Phase 3 - KPIT", lat: 18.6035, lng: 73.7234, fill: 0 },
+            { id: 174, area: "Hinjewadi Phase 3 - Cicer", lat: 18.5966, lng: 73.7258, fill: 0 },
+            { id: 175, area: "Hinjewadi Phase 3 - Zensar", lat: 18.5998, lng: 73.7302, fill: 0 },
+            { id: 176, area: "Hinjewadi Phase 3 - Mulshi Road", lat: 18.6024, lng: 73.7219, fill: 0 },
+            { id: 177, area: "Hinjewadi Phase 3 - Shri Nagar", lat: 18.5972, lng: 73.7275, fill: 0 },
+            { id: 178, area: "Hinjewadi Phase 3 - Siddharth Nagar", lat: 18.6006, lng: 73.7247, fill: 0 },
+            { id: 179, area: "Hinjewadi Phase 3 - Vijay Nagar", lat: 18.5948, lng: 73.7293, fill: 0 },
+            { id: 180, area: "Hinjewadi Phase 3 - Anand Nagar", lat: 18.5993, lng: 73.7226, fill: 0 },
+
+            // Maan (10 bins)
+            { id: 181, area: "Maan - Maan Gaothan", lat: 18.5782, lng: 73.7285, fill: 0 },
+            { id: 182, area: "Maan - Maan Road", lat: 18.5815, lng: 73.7318, fill: 0 },
+            { id: 183, area: "Maan - Deshmukh Nagar", lat: 18.5848, lng: 73.7252, fill: 0 },
+            { id: 184, area: "Maan - Jai Ganesh Nagar", lat: 18.5779, lng: 73.7301, fill: 0 },
+            { id: 185, area: "Maan - Shinde Nagar", lat: 18.5806, lng: 73.7334, fill: 0 },
+            { id: 186, area: "Maan - Ganesh Nagar", lat: 18.5833, lng: 73.7268, fill: 0 },
+            { id: 187, area: "Maan - Ram Nagar", lat: 18.5861, lng: 73.7295, fill: 0 },
+            { id: 188, area: "Maan - Sai Nagar", lat: 18.5795, lng: 73.7327, fill: 0 },
+            { id: 189, area: "Maan - Hanuman Nagar", lat: 18.5828, lng: 73.7243, fill: 0 },
+            { id: 190, area: "Maan - Sant Nagar", lat: 18.5854, lng: 73.7276, fill: 0 },
+
+            // Marunji (10 bins)
+            { id: 191, area: "Marunji - Marunji Gaothan", lat: 18.5753, lng: 73.7182, fill: 0 },
+            { id: 192, area: "Marunji - Infosys", lat: 18.5786, lng: 73.7215, fill: 0 },
+            { id: 193, area: "Marunji - Cybage", lat: 18.5819, lng: 73.7149, fill: 0 },
+            { id: 194, area: "Marunji - Marunji Road", lat: 18.5741, lng: 73.7198, fill: 0 },
+            { id: 195, area: "Marunji - Jai Ganesh Nagar", lat: 18.5774, lng: 73.7231, fill: 0 },
+            { id: 196, area: "Marunji - Siddharth Nagar", lat: 18.5807, lng: 73.7165, fill: 0 },
+            { id: 197, area: "Marunji - Shivaji Nagar", lat: 18.5832, lng: 73.7208, fill: 0 },
+            { id: 198, area: "Marunji - Ganesh Nagar", lat: 18.5758, lng: 73.7224, fill: 0 },
+            { id: 199, area: "Marunji - Ram Nagar", lat: 18.5791, lng: 73.7172, fill: 0 },
+            { id: 200, area: "Marunji - Anand Nagar", lat: 18.5824, lng: 73.7191, fill: 0 },
+
+            // Kharadi (10 bins)
+            { id: 201, area: "Kharadi - Kharadi Gaothan", lat: 18.5512, lng: 73.9438, fill: 0 },
+            { id: 202, area: "Kharadi - EON IT Park", lat: 18.5545, lng: 73.9472, fill: 0 },
+            { id: 203, area: "Kharadi - World Trade Center", lat: 18.5578, lng: 73.9405, fill: 0 },
+            { id: 204, area: "Kharadi - Zensar", lat: 18.5501, lng: 73.9453, fill: 0 },
+            { id: 205, area: "Kharadi - Kharadi Bypass", lat: 18.5534, lng: 73.9486, fill: 0 },
+            { id: 206, area: "Kharadi - Ganga Nagar", lat: 18.5567, lng: 73.9419, fill: 0 },
+            { id: 207, area: "Kharadi - Sai Nagar", lat: 18.5592, lng: 73.9447, fill: 0 },
+            { id: 208, area: "Kharadi - Ram Nagar", lat: 18.5518, lng: 73.9461, fill: 0 },
+            { id: 209, area: "Kharadi - Shastri Nagar", lat: 18.5551, lng: 73.9424, fill: 0 },
+            { id: 210, area: "Kharadi - Hanuman Nagar", lat: 18.5584, lng: 73.9498, fill: 0 },
+
+            // Wagholi (10 bins)
+            { id: 211, area: "Wagholi - Wagholi Gaothan", lat: 18.5738, lng: 73.9782, fill: 0 },
+            { id: 212, area: "Wagholi - Charholi Road", lat: 18.5771, lng: 73.9815, fill: 0 },
+            { id: 213, area: "Wagholi - Lonikand", lat: 18.5804, lng: 73.9749, fill: 0 },
+            { id: 214, area: "Wagholi - Bakori", lat: 18.5726, lng: 73.9798, fill: 0 },
+            { id: 215, area: "Wagholi - Ganesh Nagar", lat: 18.5759, lng: 73.9831, fill: 0 },
+            { id: 216, area: "Wagholi - Jai Ganesh Nagar", lat: 18.5792, lng: 73.9765, fill: 0 },
+            { id: 217, area: "Wagholi - Sai Nagar", lat: 18.5825, lng: 73.9792, fill: 0 },
+            { id: 218, area: "Wagholi - Ram Nagar", lat: 18.5742, lng: 73.9818, fill: 0 },
+            { id: 219, area: "Wagholi - Sant Nagar", lat: 18.5775, lng: 73.9754, fill: 0 },
+            { id: 220, area: "Wagholi - Anand Nagar", lat: 18.5808, lng: 73.9787, fill: 0 },
+
+            // Chandan Nagar (10 bins)
+            { id: 221, area: "Chandan Nagar - Chandan Nagar Gaothan", lat: 18.5589, lng: 73.9273, fill: 0 },
+            { id: 222, area: "Chandan Nagar - Kharadi Bypass", lat: 18.5622, lng: 73.9306, fill: 0 },
+            { id: 223, area: "Chandan Nagar - Ganganagar", lat: 18.5655, lng: 73.9239, fill: 0 },
+            { id: 224, area: "Chandan Nagar - Sai Nagar", lat: 18.5577, lng: 73.9288, fill: 0 },
+            { id: 225, area: "Chandan Nagar - Jai Ganesh Nagar", lat: 18.5611, lng: 73.9321, fill: 0 },
+            { id: 226, area: "Chandan Nagar - Ganesh Nagar", lat: 18.5644, lng: 73.9255, fill: 0 },
+            { id: 227, area: "Chandan Nagar - Ram Nagar", lat: 18.5677, lng: 73.9282, fill: 0 },
+            { id: 228, area: "Chandan Nagar - Hanuman Nagar", lat: 18.5593, lng: 73.9315, fill: 0 },
+            { id: 229, area: "Chandan Nagar - Shastri Nagar", lat: 18.5626, lng: 73.9248, fill: 0 },
+            { id: 230, area: "Chandan Nagar - Siddharth Nagar", lat: 18.5659, lng: 73.9276, fill: 0 },
+
+            // Viman Nagar (10 bins)
+            { id: 231, area: "Viman Nagar - Viman Nagar Gaothan", lat: 18.5634, lng: 73.9125, fill: 0 },
+            { id: 232, area: "Viman Nagar - Phoenix Mall", lat: 18.5667, lng: 73.9158, fill: 0 },
+            { id: 233, area: "Viman Nagar - Clover Park", lat: 18.5691, lng: 73.9092, fill: 0 },
+            { id: 234, area: "Viman Nagar - Konark Nagar", lat: 18.5612, lng: 73.9139, fill: 0 },
+            { id: 235, area: "Viman Nagar - Sai Nagar", lat: 18.5645, lng: 73.9172, fill: 0 },
+            { id: 236, area: "Viman Nagar - Ram Nagar", lat: 18.5678, lng: 73.9105, fill: 0 },
+            { id: 237, area: "Viman Nagar - Ganesh Nagar", lat: 18.5703, lng: 73.9143, fill: 0 },
+            { id: 238, area: "Viman Nagar - Shastri Nagar", lat: 18.5628, lng: 73.9166, fill: 0 },
+            { id: 239, area: "Viman Nagar - Hanuman Nagar", lat: 18.5661, lng: 73.9118, fill: 0 },
+            { id: 240, area: "Viman Nagar - Anand Nagar", lat: 18.5694, lng: 73.9151, fill: 0 },
+
+            // Dhanori (10 bins)
+            { id: 241, area: "Dhanori - Dhanori Gaothan", lat: 18.5852, lng: 73.8893, fill: 0 },
+            { id: 242, area: "Dhanori - Lohegaon Road", lat: 18.5885, lng: 73.8926, fill: 0 },
+            { id: 243, area: "Dhanori - Porwal Road", lat: 18.5918, lng: 73.8859, fill: 0 },
+            { id: 244, area: "Dhanori - Ganesh Nagar", lat: 18.5841, lng: 73.8908, fill: 0 },
+            { id: 245, area: "Dhanori - Jai Ganesh Nagar", lat: 18.5874, lng: 73.8941, fill: 0 },
+            { id: 246, area: "Dhanori - Sai Nagar", lat: 18.5907, lng: 73.8875, fill: 0 },
+            { id: 247, area: "Dhanori - Ram Nagar", lat: 18.5932, lng: 73.8902, fill: 0 },
+            { id: 248, area: "Dhanori - Shastri Nagar", lat: 18.5858, lng: 73.8935, fill: 0 },
+            { id: 249, area: "Dhanori - Hanuman Nagar", lat: 18.5891, lng: 73.8868, fill: 0 },
+            { id: 250, area: "Dhanori - Anand Nagar", lat: 18.5924, lng: 73.8896, fill: 0 },
+
+            // Talegaon Dabhade (10 bins)
+            { id: 251, area: "Talegaon Dabhade - Talegaon Gaothan", lat: 18.7315, lng: 73.7782, fill: 0 },
+            { id: 252, area: "Talegaon Dabhade - Dabhade", lat: 18.7348, lng: 73.7815, fill: 0 },
+            { id: 253, area: "Talegaon Dabhade - Ambedkar Nagar", lat: 18.7381, lng: 73.7749, fill: 0 },
+            { id: 254, area: "Talegaon Dabhade - MIDC", lat: 18.7303, lng: 73.7798, fill: 0 },
+            { id: 255, area: "Talegaon Dabhade - Ganesh Nagar", lat: 18.7336, lng: 73.7831, fill: 0 },
+            { id: 256, area: "Talegaon Dabhade - Sai Nagar", lat: 18.7369, lng: 73.7765, fill: 0 },
+            { id: 257, area: "Talegaon Dabhade - Ram Nagar", lat: 18.7394, lng: 73.7792, fill: 0 },
+            { id: 258, area: "Talegaon Dabhade - Jai Ganesh Nagar", lat: 18.7319, lng: 73.7825, fill: 0 },
+            { id: 259, area: "Talegaon Dabhade - Hanuman Nagar", lat: 18.7352, lng: 73.7758, fill: 0 },
+            { id: 260, area: "Talegaon Dabhade - Shastri Nagar", lat: 18.7385, lng: 73.7786, fill: 0 },
+
+            // Vadgaon Maval (10 bins)
+            { id: 261, area: "Vadgaon Maval - Vadgaon Gaothan", lat: 18.7486, lng: 73.7482, fill: 0 },
+            { id: 262, area: "Vadgaon Maval - Maval", lat: 18.7519, lng: 73.7515, fill: 0 },
+            { id: 263, area: "Vadgaon Maval - Ambedkar Nagar", lat: 18.7552, lng: 73.7449, fill: 0 },
+            { id: 264, area: "Vadgaon Maval - Ganesh Nagar", lat: 18.7474, lng: 73.7498, fill: 0 },
+            { id: 265, area: "Vadgaon Maval - Sai Nagar", lat: 18.7507, lng: 73.7531, fill: 0 },
+            { id: 266, area: "Vadgaon Maval - Ram Nagar", lat: 18.7541, lng: 73.7465, fill: 0 },
+            { id: 267, area: "Vadgaon Maval - Jai Ganesh Nagar", lat: 18.7574, lng: 73.7492, fill: 0 },
+            { id: 268, area: "Vadgaon Maval - Hanuman Nagar", lat: 18.7492, lng: 73.7525, fill: 0 },
+            { id: 269, area: "Vadgaon Maval - Shastri Nagar", lat: 18.7525, lng: 73.7458, fill: 0 },
+            { id: 270, area: "Vadgaon Maval - Anand Nagar", lat: 18.7558, lng: 73.7486, fill: 0 },
+
+            // Dehu Road (10 bins)
+            { id: 271, area: "Dehu Road - Dehu Road Gaothan", lat: 18.6885, lng: 73.7512, fill: 0 },
+            { id: 272, area: "Dehu Road - Dehu Road Camp", lat: 18.6918, lng: 73.7545, fill: 0 },
+            { id: 273, area: "Dehu Road - Somatane Phata", lat: 18.6951, lng: 73.7479, fill: 0 },
+            { id: 274, area: "Dehu Road - Ganesh Nagar", lat: 18.6873, lng: 73.7528, fill: 0 },
+            { id: 275, area: "Dehu Road - Sai Nagar", lat: 18.6906, lng: 73.7561, fill: 0 },
+            { id: 276, area: "Dehu Road - Ram Nagar", lat: 18.6939, lng: 73.7495, fill: 0 },
+            { id: 277, area: "Dehu Road - Jai Ganesh Nagar", lat: 18.6972, lng: 73.7522, fill: 0 },
+            { id: 278, area: "Dehu Road - Hanuman Nagar", lat: 18.6898, lng: 73.7555, fill: 0 },
+            { id: 279, area: "Dehu Road - Shastri Nagar", lat: 18.6931, lng: 73.7488, fill: 0 },
+            { id: 280, area: "Dehu Road - Anand Nagar", lat: 18.6964, lng: 73.7516, fill: 0 },
+
+            // Somatane (10 bins)
+            { id: 281, area: "Somatane - Somatane Gaothan", lat: 18.6782, lng: 73.7415, fill: 0 },
+            { id: 282, area: "Somatane - Somatane Phata", lat: 18.6815, lng: 73.7448, fill: 0 },
+            { id: 283, area: "Somatane - Ganesh Nagar", lat: 18.6848, lng: 73.7382, fill: 0 },
+            { id: 284, area: "Somatane - Sai Nagar", lat: 18.6771, lng: 73.7431, fill: 0 },
+            { id: 285, area: "Somatane - Ram Nagar", lat: 18.6804, lng: 73.7464, fill: 0 },
+            { id: 286, area: "Somatane - Jai Ganesh Nagar", lat: 18.6837, lng: 73.7398, fill: 0 },
+            { id: 287, area: "Somatane - Hanuman Nagar", lat: 18.6871, lng: 73.7425, fill: 0 },
+            { id: 288, area: "Somatane - Shastri Nagar", lat: 18.6795, lng: 73.7458, fill: 0 },
+            { id: 289, area: "Somatane - Anand Nagar", lat: 18.6828, lng: 73.7392, fill: 0 },
+            { id: 290, area: "Somatane - Siddharth Nagar", lat: 18.6861, lng: 73.7419, fill: 0 },
+
+            // Indori (10 bins)
+            { id: 291, area: "Indori - Indori Gaothan", lat: 18.7025, lng: 73.8512, fill: 0 },
+            { id: 292, area: "Indori - Induri", lat: 18.7058, lng: 73.8545, fill: 0 },
+            { id: 293, area: "Indori - Ganesh Nagar", lat: 18.7091, lng: 73.8479, fill: 0 },
+            { id: 294, area: "Indori - Sai Nagar", lat: 18.7013, lng: 73.8528, fill: 0 },
+            { id: 295, area: "Indori - Ram Nagar", lat: 18.7046, lng: 73.8561, fill: 0 },
+            { id: 296, area: "Indori - Jai Ganesh Nagar", lat: 18.7079, lng: 73.8495, fill: 0 },
+            { id: 297, area: "Indori - Hanuman Nagar", lat: 18.7104, lng: 73.8522, fill: 0 },
+            { id: 298, area: "Indori - Shastri Nagar", lat: 18.7029, lng: 73.8555, fill: 0 },
+            { id: 299, area: "Indori - Anand Nagar", lat: 18.7062, lng: 73.8488, fill: 0 },
+            { id: 300, area: "Indori - Siddharth Nagar", lat: 18.7095, lng: 73.8516, fill: 0 }
+        ];
+
+        // ========== VARIABLES ==========
+        let userLocation = null;
+        let citizenMap = null;
+        let citizenRoute = null;
+        let teamMap = null;
+        let teamRoute = null;
+        let fullMap = null;
+        let selectedBinId = null;
+        let currentTown = null;
+        let currentHQ = null;
+        let teamSelectedBin = null;
+        let selectedCategory = 'full';
+
+        // ========== PAGE NAVIGATION ==========
+        function showLandingPage() {
+            hideAllPages();
+            document.getElementById('landingPage').classList.remove('hidden');
+        }
+
+        function showCitizenPage() {
+            hideAllPages();
+            document.getElementById('binsPage').classList.remove('hidden');
+            
+            if (!userLocation) {
+                getUserLocation();
+            } else {
+                findNearestBins();
+            }
+        }
+
+        function showTeamLoginPage() {
+            hideAllPages();
+            document.getElementById('teamLoginPage').classList.remove('hidden');
+            
+            // Reset team variables
+            currentTown = null;
+            currentHQ = null;
+        }
+
+        function showTeamDashboard() {
+            hideAllPages();
+            document.getElementById('teamDashboardPage').classList.remove('hidden');
+            
+            // Re-initialize map if we have data
+            if (currentTown && currentHQ) {
+                setTimeout(() => {
+                    if (teamMap) {
+                        teamMap.remove();
+                        teamMap = null;
+                    }
+                    initTeamMap();
+                }, 100);
+            }
+        }
+
+        function showAIAnalysis() {
+            if (!currentTown) {
+                alert('Please login first');
+                showTeamLoginPage();
+                return;
+            }
+            
+            hideAllPages();
+            document.getElementById('aiAnalysisPage').classList.remove('hidden');
+            document.getElementById('aiTownName').textContent = currentTown;
+            
+            const townBins = BINS.filter(bin => bin.area.includes(currentTown));
+            const criticalBins = townBins.filter(bin => bin.fill >= 75 && bin.fill <= 100);
+            const grid = document.getElementById('criticalBinsGrid');
+            
+            if (criticalBins.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <span class="material-symbols-outlined text-6xl text-[#84cc16] mb-4">check_circle</span>
+                        <h3 class="text-2xl font-bold text-[#84cc16]">No Critical Bins</h3>
+                        <p class="text-slate-400 mt-2">All bins in ${currentTown} are below 75% fill level.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = criticalBins.map(bin => `
+                <div class="critical-card pop-hover">
+                    <div class="warning-badge">⚠️ CRITICAL</div>
+                    <div class="text-4xl mb-3">🗑️</div>
+                    <h4 class="font-bold text-lg">${bin.area}</h4>
+                    <p class="text-3xl font-bold text-red-500 my-3">${bin.fill}%</p>
+                    <button onclick="backToTeamDashboard(); setTimeout(() => selectTeamBin(${bin.id}), 500);" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-bold text-sm transition-all pop-hover">
+                        View on Map
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function showFullMapPage() {
+            document.getElementById('teamDashboardPage').classList.add('hidden');
+            document.getElementById('fullMapPage').classList.remove('hidden');
+            initFullMap();
+        }
+
+        function backToTeamDashboard() {
+            document.getElementById('fullMapPage').classList.add('hidden');
+            document.getElementById('aiAnalysisPage').classList.add('hidden');
+            document.getElementById('teamDashboardPage').classList.remove('hidden');
+        }
+
+        function showBinsPage() {
+            hideAllPages();
+            document.getElementById('binsPage').classList.remove('hidden');
+            if (userLocation) findNearestBins();
+        }
+
+        function showDetailPage(binId) {
+            selectedBinId = binId;
+            hideAllPages();
+            document.getElementById('detailPage').classList.remove('hidden');
+            
+            const bin = BINS.find(b => b.id === binId);
+            if (bin) {
+                document.getElementById('detailArea').textContent = bin.area;
+                document.getElementById('detailFill').textContent = bin.fill + '%';
+                document.getElementById('detailFillBar').style.width = bin.fill + '%';
+                document.getElementById('reportBinId').textContent = `Bin ID: PN-${bin.id}`;
+            }
+            
+            setTimeout(() => {
+                if (citizenMap) {
+                    citizenMap.remove();
+                    citizenMap = null;
+                }
+                initCitizenMap(binId);
+            }, 100);
+        }
+
+        function hideAllPages() {
+            document.getElementById('landingPage').classList.add('hidden');
+            document.getElementById('teamLoginPage').classList.add('hidden');
+            document.getElementById('teamDashboardPage').classList.add('hidden');
+            document.getElementById('aiAnalysisPage').classList.add('hidden');
+            document.getElementById('binsPage').classList.add('hidden');
+            document.getElementById('detailPage').classList.add('hidden');
+            document.getElementById('fullMapPage').classList.add('hidden');
+        }
+
+        // ========== REPORT MODAL FUNCTIONS ==========
+        function showReportModal() {
+            document.getElementById('reportModal').classList.add('show');
+            
+            // Setup category buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(b => {
+                        b.classList.remove('bg-[#ffd700]', 'text-background-dark', 'font-bold');
+                        b.classList.add('bg-white/10', 'text-slate-100', 'font-medium');
+                    });
+                    this.classList.add('bg-[#ffd700]', 'text-background-dark', 'font-bold');
+                    this.classList.remove('bg-white/10', 'text-slate-100', 'font-medium');
+                    selectedCategory = this.dataset.category;
+                });
+            });
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('show');
+        }
+
+        function submitReport() {
+            const details = document.getElementById('reportDetails').value;
+            const category = selectedCategory;
+            const binId = document.getElementById('reportBinId').textContent;
+            
+            alert(`Report submitted successfully!\nBin: ${binId}\nCategory: ${category}\nDetails: ${details || 'No details provided'}`);
+            closeReportModal();
+        }
+
+        // ========== TEAM FUNCTIONS ==========
+        function loadTowns() {
+            const hq = document.getElementById('teamHQ').value;
+            const townSelect = document.getElementById('teamTown');
+            townSelect.innerHTML = '<option value="">Select Town</option>';
+            
+            if (hq && HQ_DATA[hq]) {
+                HQ_DATA[hq].towns.forEach(town => {
+                    const option = document.createElement('option');
+                    option.value = town;
+                    option.textContent = town;
+                    townSelect.appendChild(option);
+                });
+            }
+        }
+
+        function teamLogin() {
+            const hq = document.getElementById('teamHQ').value;
+            const town = document.getElementById('teamTown').value;
+            
+            if (!hq || !town) {
+                alert('Please select both HQ and Town');
+                return;
+            }
+            
+            currentHQ = hq;
+            currentTown = town;
+            document.getElementById('townName').textContent = town;
+            
+            showTeamDashboard();
+            loadTeamData(town);
+            
+            // Initialize map after a short delay
+            setTimeout(() => {
+                if (teamMap) {
+                    teamMap.remove();
+                    teamMap = null;
+                }
+                initTeamMap();
+            }, 100);
+        }
+
+        function logoutTeam() {
+            // Clean up maps
+            if (teamMap) {
+                teamMap.remove();
+                teamMap = null;
+            }
+            if (teamRoute) {
+                teamRoute = null;
+            }
+            if (fullMap) {
+                fullMap.remove();
+                fullMap = null;
+            }
+            
+            // Reset form
+            document.getElementById('teamHQ').value = '';
+            document.getElementById('teamTown').innerHTML = '<option value="">First select HQ</option>';
+            currentTown = null;
+            currentHQ = null;
+            
+            // Go to login page
+            showTeamLoginPage();
+        }
+
+        function loadTeamData(town) {
+            const townBins = BINS.filter(bin => bin.area.includes(town));
+            
+            const stats = {
+                zero: townBins.filter(b => b.fill === 0).length,
+                twentyFive: townBins.filter(b => b.fill > 0 && b.fill <= 25).length,
+                fifty: townBins.filter(b => b.fill > 25 && b.fill <= 50).length,
+                seventyFive: townBins.filter(b => b.fill > 50 && b.fill <= 75).length,
+                hundred: townBins.filter(b => b.fill > 75 && b.fill <= 100).length
+            };
+
+            document.getElementById('statsBoxes').innerHTML = `
+                <div class="glass-card rounded-2xl p-6 pop-hover">
+                    <p class="text-slate-400 text-sm">0%</p>
+                    <h3 class="text-3xl font-bold mt-1">${stats.zero}</h3>
+                </div>
+                <div class="glass-card rounded-2xl p-6 pop-hover">
+                    <p class="text-slate-400 text-sm">1-25%</p>
+                    <h3 class="text-3xl font-bold mt-1 text-[#84cc16]">${stats.twentyFive}</h3>
+                </div>
+                <div class="glass-card rounded-2xl p-6 pop-hover">
+                    <p class="text-slate-400 text-sm">26-50%</p>
+                    <h3 class="text-3xl font-bold mt-1 text-yellow-500">${stats.fifty}</h3>
+                </div>
+                <div class="glass-card rounded-2xl p-6 pop-hover">
+                    <p class="text-slate-400 text-sm">51-75%</p>
+                    <h3 class="text-3xl font-bold mt-1 text-orange-500">${stats.seventyFive}</h3>
+                </div>
+                <div class="glass-card rounded-2xl p-6 pop-hover">
+                    <p class="text-slate-400 text-sm">76-100%</p>
+                    <h3 class="text-3xl font-bold mt-1 text-red-500">${stats.hundred}</h3>
+                </div>
+            `;
+
+            const teamGrid = document.getElementById('teamBinsGrid');
+            teamGrid.innerHTML = townBins.map(bin => {
+                const color = bin.fill < 50 ? 'border-l-[#84cc16]' : bin.fill < 80 ? 'border-l-yellow-500' : 'border-l-red-500';
+                const status = bin.fill < 50 ? 'Normal' : bin.fill < 80 ? 'Warning' : 'Critical';
+                const statusColor = bin.fill < 50 ? 'text-[#84cc16] bg-[#84cc16]/20' : bin.fill < 80 ? 'text-yellow-500 bg-yellow-500/20' : 'text-red-500 bg-red-500/20';
+                
+                return `
+                    <div onclick="selectTeamBin(${bin.id})" class="glass-card rounded-2xl p-4 border-l-4 ${color} hover:bg-white/5 transition-all cursor-pointer pop-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-slate-100">${bin.area}</h4>
+                            </div>
+                            <span class="${statusColor} px-2 py-1 rounded text-[10px] font-black uppercase">${status}</span>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Fill Level</span>
+                                <span class="font-bold">${bin.fill}%</span>
+                            </div>
+                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                                <div class="bg-[#84cc16] h-full rounded-full" style="width: ${bin.fill}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== MAP FUNCTIONS ==========
+        function initTeamMap() {
+            if (teamMap) {
+                teamMap.remove();
+            }
+            
+            teamMap = L.map('teamMap').setView([18.5204, 73.8567], 11);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '©OpenStreetMap, ©CartoDB',
+                subdomains: 'abcd',
+                maxZoom: 19,
+                tileSize: 512,
+                zoomOffset: -1
+            }).addTo(teamMap);
+
+            // Get user location
+            if (!userLocation) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            userLocation = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            addTeamMapMarkers();
+                        },
+                        function(error) {
+                            userLocation = { lat: 18.5204, lng: 73.8567 };
+                            addTeamMapMarkers();
+                        }
+                    );
+                } else {
+                    userLocation = { lat: 18.5204, lng: 73.8567 };
+                    addTeamMapMarkers();
+                }
+            } else {
+                addTeamMapMarkers();
+            }
+        }
+
+        function addTeamMapMarkers() {
+            // Clear any existing route first
+            if (teamRoute) {
+                teamMap.removeControl(teamRoute);
+                teamRoute = null;
+            }
+
+            // Add user marker
+            L.marker([userLocation.lat, userLocation.lng], {
+                icon: L.divIcon({
+                    html: '<div class="user-marker">📍</div>',
+                    className: 'custom-marker',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                })
+            }).addTo(teamMap).bindPopup('You are here');
+
+            // Add selected Sub HQ marker
+            if (currentHQ && HQ_DATA[currentHQ]) {
+                L.marker([HQ_DATA[currentHQ].lat, HQ_DATA[currentHQ].lng], {
+                    icon: L.divIcon({
+                        html: '<div class="hq-marker-sub">🏬</div>',
+                        className: 'custom-marker',
+                        iconSize: [45, 45],
+                        iconAnchor: [22, 22]
+                    })
+                }).addTo(teamMap).bindPopup(`🏬 ${currentHQ} HQ`);
+            }
+
+            // Add bins for this town
+            const townBins = BINS.filter(bin => bin.area.includes(currentTown));
+            townBins.forEach(bin => {
+                const marker = L.marker([bin.lat, bin.lng], {
+                    icon: L.divIcon({
+                        html: '<div class="bin-marker-lime">🗑️</div>',
+                        className: 'custom-marker',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    })
+                }).addTo(teamMap).bindPopup(`${bin.area}<br>Fill: ${bin.fill}%`);
+                
+                marker.on('click', function() {
+                    selectTeamBin(bin.id);
+                });
+            });
+
+            // Fit bounds to show all markers
+            const allLatLngs = [
+                [userLocation.lat, userLocation.lng],
+                [HQ_DATA[currentHQ].lat, HQ_DATA[currentHQ].lng],
+                ...townBins.map(b => [b.lat, b.lng])
+            ];
+            const bounds = L.latLngBounds(allLatLngs);
+            teamMap.fitBounds(bounds, { padding: [50, 50] });
+        }
+
+        function formatRouteInstructions(route, map, routeControl) {
+            let instructions = '';
+            let totalDistance = 0;
+            
+            route.instructions.forEach((inst, index) => {
+                const distance = inst.distance ? (inst.distance / 1000).toFixed(1) : 0;
+                totalDistance += inst.distance || 0;
+                
+                let instructionText = inst.text;
+                if (inst.road) {
+                    instructionText += ` onto ${inst.road}`;
+                }
+                
+                // Store the coordinates for this instruction
+                const lat = inst.latLng ? inst.latLng.lat : null;
+                const lng = inst.latLng ? inst.latLng.lng : null;
+                
+                instructions += `
+                    <div class="route-instruction-item cursor-pointer hover:bg-[#ffd700]/20 transition-all p-2 rounded-lg" data-index="${index}" data-lat="${lat}" data-lng="${lng}">
+                        <div class="flex justify-between">
+                            <span>${index + 1}. ${instructionText}</span>
+                            <span class="route-distance">${distance} km</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-1">Click to view on map</div>
+                    </div>
+                `;
+            });
+            
+            const totalKm = (totalDistance / 1000).toFixed(1);
+            const totalMin = Math.round(totalDistance / 1000 * 2);
+            
+            return {
+                html: `
+                    <div class="mb-2 p-2 gold-bg rounded-lg">
+                        <div class="flex justify-between text-sm">
+                            <span>Total Distance:</span>
+                            <span class="route-distance">${totalKm} km</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span>Est. Time:</span>
+                            <span class="route-distance">${totalMin} min</span>
+                        </div>
+                    </div>
+                    ${instructions}
+                `,
+                totalKm,
+                totalMin
+            };
+        }
+
+        function selectTeamBin(binId) {
+            teamSelectedBin = binId;
+            const bin = BINS.find(b => b.id === binId);
+            
+            if (bin && teamMap && userLocation) {
+                document.getElementById('routeLoading').classList.add('show');
+                document.getElementById('routeInstructions').classList.remove('show');
+                
+                if (teamRoute) {
+                    teamMap.removeControl(teamRoute);
+                    teamRoute = null;
+                }
+
+                setTimeout(() => {
+                    try {
+                        teamRoute = L.Routing.control({
+                            waypoints: [L.latLng(userLocation.lat, userLocation.lng), L.latLng(bin.lat, bin.lng)],
+                            routeWhileDragging: false,
+                            showAlternatives: false,
+                            lineOptions: { styles: [{ color: '#3b82f6', weight: 5 }] },
+                            createMarker: () => null,
+                            addWaypoints: false,
+                            draggableWaypoints: false,
+                            timeout: 10000
+                        }).addTo(teamMap);
+
+                        teamRoute.on('routesfound', function(e) {
+                            document.getElementById('routeLoading').classList.remove('show');
+                            
+                            const routes = e.routes;
+                            if (routes && routes.length > 0) {
+                                const route = routes[0];
+                                
+                                // Extract coordinates for each instruction from the route geometry
+                                const instructions = [];
+                                let lastIdx = 0;
+                                
+                                route.instructions.forEach((inst, index) => {
+                                    // Get the coordinate for this instruction from the route's coordinates array
+                                    const idx = inst.index || 0;
+                                    if (idx < route.coordinates.length) {
+                                        const coord = route.coordinates[idx];
+                                        instructions.push({
+                                            text: inst.text,
+                                            distance: inst.distance,
+                                            road: inst.road,
+                                            lat: coord.lat,
+                                            lng: coord.lng,
+                                            index: index
+                                        });
+                                    }
+                                });
+                                
+                                // Build HTML with instructions
+                                let instructionsHtml = '';
+                                let totalDistance = 0;
+                                
+                                instructions.forEach(inst => {
+                                    const distance = inst.distance ? (inst.distance / 1000).toFixed(1) : 0;
+                                    totalDistance += inst.distance || 0;
+                                    
+                                    let instructionText = inst.text;
+                                    if (inst.road) {
+                                        instructionText += ` onto ${inst.road}`;
+                                    }
+                                    
+                                    instructionsHtml += `
+                                        <div class="route-instruction-item cursor-pointer hover:bg-[#ffd700]/20 transition-all p-2 rounded-lg" 
+                                            data-lat="${inst.lat}" data-lng="${inst.lng}" data-index="${inst.index}">
+                                            <div class="flex justify-between">
+                                                <span>${inst.index + 1}. ${instructionText}</span>
+                                                <span class="route-distance">${distance} km</span>
+                                            </div>
+                                            <div class="text-[10px] text-slate-500 mt-1">📍 Click to view on map</div>
+                                        </div>
+                                    `;
+                                });
+                                
+                                const totalKm = (totalDistance / 1000).toFixed(1);
+                                const totalMin = Math.round(totalDistance / 1000 * 2);
+                                
+                                document.getElementById('instructionsList').innerHTML = `
+                                    <div class="mb-2 p-2 gold-bg rounded-lg">
+                                        <div class="flex justify-between text-sm">
+                                            <span>Total Distance:</span>
+                                            <span class="route-distance">${totalKm} km</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>Est. Time:</span>
+                                            <span class="route-distance">${totalMin} min</span>
+                                        </div>
+                                    </div>
+                                    ${instructionsHtml}
+                                `;
+                                
+                                document.getElementById('routeInstructions').classList.add('show');
+                                
+                                // Add click handlers to instruction items
+                                setTimeout(() => {
+                                    document.querySelectorAll('#instructionsList .route-instruction-item').forEach(item => {
+                                        item.addEventListener('click', function() {
+                                            const lat = this.dataset.lat;
+                                            const lng = this.dataset.lng;
+                                            const index = this.dataset.index;
+                                            
+                                            if (lat && lng) {
+                                                // Remove any existing highlight marker
+                                                if (window.highlightMarker) {
+                                                    teamMap.removeLayer(window.highlightMarker);
+                                                }
+                                                
+                                                // Add a temporary highlight marker
+                                                window.highlightMarker = L.marker([parseFloat(lat), parseFloat(lng)], {
+                                                    icon: L.divIcon({
+                                                        html: '<div style="width: 24px; height: 24px; background: #ffd700; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 20px gold; animation: pulse 1s infinite;"></div>',
+                                                        className: 'custom-marker',
+                                                        iconSize: [24, 24],
+                                                        iconAnchor: [12, 12]
+                                                    })
+                                                }).addTo(teamMap).bindPopup(`<b>Step ${parseInt(index) + 1}</b><br>${this.querySelector('span').textContent.split('.')[1]?.trim() || 'Turn here'}`).openPopup();
+                                                
+                                                // Center map on that location with zoom
+                                                teamMap.setView([parseFloat(lat), parseFloat(lng)], 17);
+                                                
+                                                // Add a slight highlight to the clicked instruction
+                                                document.querySelectorAll('#instructionsList .route-instruction-item').forEach(el => {
+                                                    el.classList.remove('bg-[#ffd700]/30');
+                                                });
+                                                this.classList.add('bg-[#ffd700]/30');
+                                            }
+                                        });
+                                    });
+                                }, 100);
+                            }
+                        });
+
+                        teamRoute.on('routingerror', () => {
+                            document.getElementById('routeLoading').classList.remove('show');
+                            alert('Could not calculate route');
+                        });
+
+                        setTimeout(() => {
+                            const bounds = L.latLngBounds([userLocation, [bin.lat, bin.lng]]);
+                            teamMap.fitBounds(bounds, { padding: [50, 50] });
+                        }, 500);
+                    } catch (e) {
+                        document.getElementById('routeLoading').classList.remove('show');
+                    }
+                }, 100);
+            }
+        }
+
+        // ========== FULL MAP FUNCTIONS (FIXED - COPY PASTED FROM REFERENCE) ==========
+        function initFullMap() {
+            if (fullMap) {
+                fullMap.remove();
+            }
+            
+            fullMap = L.map('fullMap').setView([18.5204, 73.8567], 11);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '©OpenStreetMap, ©CartoDB',
+                subdomains: 'abcd',
+                maxZoom: 19,
+                tileSize: 512,
+                zoomOffset: -1
+            }).addTo(fullMap);
+
+            // Add user location if available
+            if (userLocation) {
+                L.marker([userLocation.lat, userLocation.lng], {
+                    icon: L.divIcon({
+                        html: '<div class="user-marker">📍</div>',
+                        className: 'custom-marker',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    })
+                }).addTo(fullMap).bindPopup('You are here');
+            }
+
+            // Add Main HQ marker
+            L.marker([MAIN_HQ.lat, MAIN_HQ.lng], {
+                icon: L.divIcon({
+                    html: '<div class="hq-marker-main">🏛️</div>',
+                    className: 'custom-marker',
+                    iconSize: [50, 50],
+                    iconAnchor: [25, 25]
+                })
+            }).addTo(fullMap).bindPopup('🏛️ Pune Municipal Corporation (Main HQ)');
+
+            // Add ALL Sub HQ markers
+            for (const [name, data] of Object.entries(HQ_DATA)) {
+                L.marker([data.lat, data.lng], {
+                    icon: L.divIcon({
+                        html: '<div class="hq-marker-sub">🏬</div>',
+                        className: 'custom-marker',
+                        iconSize: [45, 45],
+                        iconAnchor: [22, 22]
+                    })
+                }).addTo(fullMap).bindPopup(`🏬 ${name} HQ`);
+            }
+
+            // Add ALL 300 bins
+            BINS.forEach(bin => {
+                L.marker([bin.lat, bin.lng], {
+                    icon: L.divIcon({
+                        html: '<div class="bin-marker-lime">🗑️</div>',
+                        className: 'custom-marker',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    })
+                }).addTo(fullMap);
+            });
+
+            // Zoom out to show everything
+            setTimeout(() => {
+                fullMap.setView([18.5204, 73.8567], 11);
+            }, 200);
+        }
+
+        // ========== CITIZEN FUNCTIONS ==========
+        function getUserLocation() {
+            document.getElementById('binsGrid').innerHTML = '<div class="col-span-full text-center py-12"><div class="animate-spin inline-block w-8 h-8 border-4 border-[#ffd700] border-t-transparent rounded-full"></div><p class="mt-4 text-slate-400">Getting your location...</p></div>';
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                        findNearestBins();
+                    },
+                    () => {
+                        userLocation = { lat: 18.5204, lng: 73.8567 };
+                        findNearestBins();
+                    }
+                );
+            } else {
+                userLocation = { lat: 18.5204, lng: 73.8567 };
+                findNearestBins();
+            }
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return Math.round(R * c * 10) / 10;
+        }
+
+        function getFillColor(fill) {
+            if (fill < 50) return 'green';
+            if (fill < 80) return 'yellow';
+            return 'red';
+        }
+
+        function findNearestBins() {
+            if (!userLocation) return;
+
+            const binsWithDistance = BINS.map(bin => ({
+                ...bin,
+                distance: calculateDistance(userLocation.lat, userLocation.lng, bin.lat, bin.lng)
+            }));
+
+            const nearestBins = binsWithDistance
+                .filter(bin => bin.distance <= 10)
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, 8);
+
+            displayBinsGrid(nearestBins);
+        }
+
+        function displayBinsGrid(bins) {
+            const grid = document.getElementById('binsGrid');
+            
+            if (bins.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400">No bins found within 10km radius</div>';
+                return;
+            }
+            
+            grid.innerHTML = bins.map(bin => {
+                const colorClass = getFillColor(bin.fill);
+                return `
+                    <div onclick="showDetailPage(${bin.id})" class="glass-card rounded-2xl p-6 border-l-4 border-${colorClass === 'green' ? '[#84cc16]' : colorClass === 'yellow' ? 'yellow-500' : 'red-500'} hover:bg-white/5 transition-all cursor-pointer pop-hover">
+                        <div class="text-4xl mb-3">🗑️</div>
+                        <h3 class="font-bold text-lg mb-2">${bin.area}</h3>
+                        <p class="text-2xl font-bold ${colorClass === 'green' ? 'text-[#84cc16]' : colorClass === 'yellow' ? 'text-yellow-500' : 'text-red-500'} mb-2">${bin.fill}%</p>
+                        <p class="text-sm text-slate-400"><span class="material-symbols-outlined text-xs align-middle">location_on</span> ${bin.distance} km away</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function initCitizenMap(binId) {
+            if (citizenMap) {
+                citizenMap.remove();
+            }
+            
+            citizenMap = L.map('map').setView([18.5204, 73.8567], 13);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '©OpenStreetMap, ©CartoDB',
+                subdomains: 'abcd',
+                maxZoom: 19,
+                tileSize: 512,
+                zoomOffset: -1
+            }).addTo(citizenMap);
+
+            const bin = BINS.find(b => b.id === binId);
+            if (bin && userLocation) {
+                document.getElementById('routeLoading').classList.add('show');
+                document.getElementById('citizenRouteInstructions').classList.remove('show');
+                
+                L.marker([userLocation.lat, userLocation.lng], {
+                    icon: L.divIcon({
+                        html: '<div class="user-marker">📍</div>',
+                        className: 'custom-marker',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    })
+                }).addTo(citizenMap).bindPopup('You are here');
+
+                L.marker([bin.lat, bin.lng], {
+                    icon: L.divIcon({
+                        html: '<div class="bin-marker-lime">🗑️</div>',
+                        className: 'custom-marker',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    })
+                }).addTo(citizenMap).bindPopup(`${bin.area}<br>Fill: ${bin.fill}%`);
+
+                if (citizenRoute) {
+                    citizenMap.removeControl(citizenRoute);
+                }
+
+                citizenRoute = L.Routing.control({
+                    waypoints: [
+                        L.latLng(userLocation.lat, userLocation.lng),
+                        L.latLng(bin.lat, bin.lng)
+                    ],
+                    routeWhileDragging: false,
+                    showAlternatives: false,
+                    lineOptions: {
+                        styles: [{ color: '#3b82f6', weight: 5 }]
+                    },
+                    createMarker: function() { return null; },
+                    timeout: 10000
+                }).addTo(citizenMap);
+
+                citizenRoute.on('routesfound', function(e) {
+                    document.getElementById('routeLoading').classList.remove('show');
+                    
+                    const routes = e.routes;
+                    if (routes && routes.length > 0) {
+                        const route = routes[0];
+                        
+                        // Extract coordinates for each instruction from the route geometry
+                        const instructions = [];
+                        
+                        route.instructions.forEach((inst, index) => {
+                            // Get the coordinate for this instruction from the route's coordinates array
+                            const idx = inst.index || 0;
+                            if (idx < route.coordinates.length) {
+                                const coord = route.coordinates[idx];
+                                instructions.push({
+                                    text: inst.text,
+                                    distance: inst.distance,
+                                    road: inst.road,
+                                    lat: coord.lat,
+                                    lng: coord.lng,
+                                    index: index
+                                });
+                            }
+                        });
+                        
+                        // Build HTML with instructions
+                        let instructionsHtml = '';
+                        let totalDistance = 0;
+                        
+                        instructions.forEach(inst => {
+                            const distance = inst.distance ? (inst.distance / 1000).toFixed(1) : 0;
+                            totalDistance += inst.distance || 0;
+                            
+                            let instructionText = inst.text;
+                            if (inst.road) {
+                                instructionText += ` onto ${inst.road}`;
+                            }
+                            
+                            instructionsHtml += `
+                                <div class="route-instruction-item cursor-pointer hover:bg-[#ffd700]/20 transition-all p-2 rounded-lg" 
+                                    data-lat="${inst.lat}" data-lng="${inst.lng}" data-index="${inst.index}">
+                                    <div class="flex justify-between">
+                                        <span>${inst.index + 1}. ${instructionText}</span>
+                                        <span class="route-distance">${distance} km</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 mt-1">📍 Click to view on map</div>
+                                </div>
+                            `;
+                        });
+                        
+                        const totalKm = (totalDistance / 1000).toFixed(1);
+                        const totalMin = Math.round(totalDistance / 1000 * 2);
+                        
+                        document.getElementById('citizenInstructionsList').innerHTML = `
+                            <div class="mb-2 p-2 gold-bg rounded-lg">
+                                <div class="flex justify-between text-sm">
+                                    <span>Total Distance:</span>
+                                    <span class="route-distance">${totalKm} km</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span>Est. Time:</span>
+                                    <span class="route-distance">${totalMin} min</span>
+                                </div>
+                            </div>
+                            ${instructionsHtml}
+                        `;
+                        
+                        document.getElementById('citizenRouteInstructions').classList.add('show');
+                        
+                        // Add click handlers to instruction items
+                        setTimeout(() => {
+                            document.querySelectorAll('#citizenInstructionsList .route-instruction-item').forEach(item => {
+                                item.addEventListener('click', function() {
+                                    const lat = this.dataset.lat;
+                                    const lng = this.dataset.lng;
+                                    const index = this.dataset.index;
+                                    
+                                    if (lat && lng) {
+                                        // Remove any existing highlight marker
+                                        if (window.citizenHighlightMarker) {
+                                            citizenMap.removeLayer(window.citizenHighlightMarker);
+                                        }
+                                        
+                                        // Add a temporary highlight marker
+                                        window.citizenHighlightMarker = L.marker([parseFloat(lat), parseFloat(lng)], {
+                                            icon: L.divIcon({
+                                                html: '<div style="width: 24px; height: 24px; background: #ffd700; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 20px gold; animation: pulse 1s infinite;"></div>',
+                                                className: 'custom-marker',
+                                                iconSize: [24, 24],
+                                                iconAnchor: [12, 12]
+                                            })
+                                        }).addTo(citizenMap).bindPopup(`<b>Step ${parseInt(index) + 1}</b><br>${this.querySelector('span').textContent.split('.')[1]?.trim() || 'Turn here'}`).openPopup();
+                                        
+                                        // Center map on that location with zoom
+                                        citizenMap.setView([parseFloat(lat), parseFloat(lng)], 17);
+                                        
+                                        // Add a slight highlight to the clicked instruction
+                                        document.querySelectorAll('#citizenInstructionsList .route-instruction-item').forEach(el => {
+                                            el.classList.remove('bg-[#ffd700]/30');
+                                        });
+                                        this.classList.add('bg-[#ffd700]/30');
+                                    }
+                                });
+                            });
+                        }, 100);
+                    }
+                });
+
+                citizenRoute.on('routingerror', function() {
+                    document.getElementById('routeLoading').classList.remove('show');
+                    alert('Could not calculate route. Please try again.');
+                });
+
+                setTimeout(() => {
+                    const bounds = L.latLngBounds([userLocation, [bin.lat, bin.lng]]);
+                    citizenMap.fitBounds(bounds, { padding: [50, 50] });
+                }, 500);
+            }
+        }
+
+        function updateBinFill(percentage) {
+            if (!selectedBinId) return;
+            
+            const bin = BINS.find(b => b.id === selectedBinId);
+            if (bin) {
+                bin.fill = percentage;
+                
+                document.getElementById('detailFill').textContent = percentage + '%';
+                document.getElementById('detailFillBar').style.width = percentage + '%';
+            }
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            showLandingPage();
+        };
+    </script>
+</body>
+</html>
