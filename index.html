@@ -2630,7 +2630,7 @@
 
             // STEP 1: Cursor enters, moves to Citizen Access card
             demoTimeouts.push(setTimeout(() => {
-                moveCursor('28%', '65%', 900);
+                moveCursor('40%', '58%', 900);
                 setLabel('Step 2 — Hovering over "Citizen Access" card...');
                 setDot(1);
             }, 1200));
@@ -2645,7 +2645,7 @@
             // STEP 3: Cursor also hovers card2 to show both
             demoTimeouts.push(setTimeout(() => {
                 setLabel('Step 3 — Also checking "Municipal Team" option...');
-                moveCursor('62%', '65%', 900);
+                moveCursor('60%', '58%', 900);
                 card1.style.background = '';
                 card1.style.boxShadow = '';
                 card1.style.transform = '';
@@ -2659,7 +2659,7 @@
                 card2.style.background = '';
                 card2.style.boxShadow = '';
                 card2.style.transform = '';
-                moveCursor('28%', '65%', 800);
+                moveCursor('40%', '58%', 800);
                 setLabel('Step 4 — Clicking "Citizen Access" to enter portal...');
                 setDot(2);
             }, 4500));
@@ -2715,7 +2715,8 @@
 
             // STEP 9: Cursor moves to "Get Directions" button
             demoTimeouts.push(setTimeout(() => {
-                moveCursor('83%', '82%', 700);
+                moveCursor('82%', '88%', 700);
+                setLabel('Step 7 — Get directions to the critical bin...');
             }, 11400));
 
             demoTimeouts.push(setTimeout(() => {
