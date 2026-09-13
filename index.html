@@ -606,122 +606,168 @@
             </div>
         </section>
 
-        <!-- Footer Section -->
-        <footer class="bg-[#04130b] text-white pt-16 pb-8 border-t-4 border-[#032918] relative z-30">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
-                    
-                    <!-- Col 1: Logo & Contact & Newsletter -->
-                    <div class="lg:col-span-2">
-                        <div class="flex items-center gap-3 mb-8">
-                            <div class="size-10 gold-bg rounded-lg flex items-center justify-center text-background-dark">
-                                <span class="material-symbols-outlined font-bold">eco</span>
+        <!-- Interactive Demo Section -->
+        <section class="relative z-30 bg-[#0a130f] py-24 px-6 border-t border-[rgba(255,215,0,0.1)]">
+            <div class="max-w-6xl mx-auto text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full gold-bg border gold-border gold-text text-xs font-bold uppercase tracking-widest mb-6 shadow-lg shadow-[#ffd700]/10">
+                    <span class="material-symbols-outlined text-[16px]">play_circle</span>
+                    Interactive Demo
+                </div>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">See <span class="gold-text">PuneWaste</span> in Action</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed mb-10">Watch how easily you can navigate the smart waste management system.</p>
+
+                <!-- Step Progress Indicators -->
+                <div class="flex justify-center gap-3 mb-8" id="demoStepIndicators">
+                    <div class="demo-step-dot w-2.5 h-2.5 rounded-full bg-white/20 transition-all duration-300" id="dot0"></div>
+                    <div class="demo-step-dot w-2.5 h-2.5 rounded-full bg-white/20 transition-all duration-300" id="dot1"></div>
+                    <div class="demo-step-dot w-2.5 h-2.5 rounded-full bg-white/20 transition-all duration-300" id="dot2"></div>
+                    <div class="demo-step-dot w-2.5 h-2.5 rounded-full bg-white/20 transition-all duration-300" id="dot3"></div>
+                    <div class="demo-step-dot w-2.5 h-2.5 rounded-full bg-white/20 transition-all duration-300" id="dot4"></div>
+                </div>
+
+                <!-- Step Label -->
+                <p class="text-[#ffd700] font-semibold mb-6 h-6 transition-all duration-300 text-sm tracking-wide" id="demoStepLabel">Click "Play Walkthrough" to begin</p>
+                
+                <!-- Browser Frame -->
+                <div class="relative mx-auto" style="max-width:900px; height:560px;">
+                    <!-- Shadow glow -->
+                    <div class="absolute inset-0 rounded-[2rem] blur-2xl bg-[#ffd700]/10 scale-95 pointer-events-none"></div>
+
+                    <div class="relative w-full h-full glass-panel rounded-[2rem] border gold-border overflow-hidden shadow-2xl bg-[#0a130f]">
+                        <!-- Fake Browser Chrome -->
+                        <div class="h-11 bg-black/60 border-b border-white/10 flex items-center px-4 gap-2 shrink-0">
+                            <div class="w-3 h-3 rounded-full bg-red-500 opacity-80"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400 opacity-80"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400 opacity-80"></div>
+                            <div class="ml-4 flex-1 bg-black/40 text-slate-400 text-xs py-1 px-3 rounded-md text-center border border-white/10 max-w-xs mx-auto">punewaste.org</div>
+                        </div>
+
+                        <!-- Demo Viewport -->
+                        <div id="demoContainer" class="relative w-full bg-[#0d1f16]" style="height: calc(100% - 2.75rem);">
+
+                            <!-- === SCREEN 1: Landing Home === -->
+                            <div id="demoScreen1" class="absolute inset-0 flex flex-col items-center justify-center gap-0 transition-opacity duration-700 opacity-100">
+                                <!-- Mini Nav -->
+                                <div class="absolute top-0 left-0 right-0 h-14 bg-[#0a1a11]/90 border-b border-[#ffd700]/20 flex items-center px-6 justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-md bg-[#ffd700]/20 flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-[#ffd700] text-sm">eco</span>
+                                        </div>
+                                        <span class="text-white font-bold text-sm">Pune<span class="text-[#ffd700]">Waste</span></span>
+                                    </div>
+                                    <div class="text-xs text-[#ffd700] border border-[#ffd700]/40 px-3 py-1 rounded-lg font-bold">Get Started</div>
+                                </div>
+                                <!-- Hero -->
+                                <div class="text-center px-8 mt-6">
+                                    <p class="text-[#ffd700] text-[10px] font-bold uppercase tracking-widest mb-3">● Live in Pune District</p>
+                                    <h3 class="text-white text-2xl font-extrabold leading-tight mb-3">Smart Waste Management<br><span class="text-[#ffd700]">for a Cleaner Pune</span></h3>
+                                    <p class="text-slate-400 text-xs max-w-sm mx-auto mb-6">Optimizing collection with AI-driven logistics and real-time IoT data.</p>
+                                    <!-- Two Cards -->
+                                    <div class="flex gap-4 justify-center">
+                                        <div id="demoCard1" class="bg-white/5 border border-[#ffd700]/20 rounded-xl p-4 w-40 text-left transition-all duration-500 cursor-pointer">
+                                            <div class="w-8 h-8 rounded-lg bg-[#ffd700]/10 flex items-center justify-center mb-3">
+                                                <span class="material-symbols-outlined text-[#ffd700] text-lg">person_pin_circle</span>
+                                            </div>
+                                            <p class="text-white font-bold text-sm mb-1">Citizen Access</p>
+                                            <p class="text-slate-400 text-[10px] leading-tight">Find bins, report overflow, track collection</p>
+                                            <div class="flex items-center gap-1 text-[#ffd700] text-[10px] font-bold mt-3">
+                                                Launch Portal <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
+                                            </div>
+                                        </div>
+                                        <div id="demoCard2" class="bg-white/5 border border-purple-500/20 rounded-xl p-4 w-40 text-left transition-all duration-500">
+                                            <div class="w-8 h-8 rounded-lg bg-purple-900/30 flex items-center justify-center mb-3">
+                                                <span class="material-symbols-outlined text-purple-400 text-lg">domain</span>
+                                            </div>
+                                            <p class="text-white font-bold text-sm mb-1">Municipal Team</p>
+                                            <p class="text-slate-400 text-[10px] leading-tight">Dashboard for fleet, routes & sensors</p>
+                                            <div class="flex items-center gap-1 text-purple-400 text-[10px] font-bold mt-3">
+                                                Admin Dashboard <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <h2 class="text-3xl font-extrabold tracking-tight text-white">Pune<span class="gold-text">Waste</span></h2>
-                        </div>
-                        
-                        <div class="mb-6">
-                            <h3 class="text-lg font-bold mb-3 text-white">Contact Us :</h3>
-                            <p class="text-white font-bold mb-1">+91 740 9999 111</p>
-                            <p class="text-emerald-500 text-sm mb-2 font-medium">09.00am to 6.00pm IST (Monday to Saturday)</p>
-                            <p class="text-white font-bold">support@punewaste.org</p>
-                        </div>
-                        
-                        <div class="flex gap-4 mb-8 text-slate-300">
-                            <a href="#" class="hover:text-white transition-colors"><span class="material-symbols-outlined text-2xl">facebook</span></a>
-                            <a href="#" class="hover:text-white transition-colors"><span class="material-symbols-outlined text-2xl">alternate_email</span></a>
-                            <a href="#" class="hover:text-white transition-colors"><span class="material-symbols-outlined text-2xl">smart_display</span></a>
-                        </div>
-                        
-                        <div>
-                            <h3 class="text-lg font-bold mb-3 text-white">Subscribe For Newsletter</h3>
-                            <form class="flex gap-2 max-w-sm">
-                                <input type="email" placeholder="Email" class="flex-1 bg-white px-4 py-2 text-slate-900 focus:outline-none rounded-sm">
-                                <button type="submit" class="bg-[#034d31] hover:bg-[#023b26] border border-[#058a58] text-white px-6 py-2 font-bold transition-colors rounded-sm">Go</button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <!-- Col 2: Organization -->
-                    <div>
-                        <h3 class="text-emerald-400 font-bold text-lg mb-6">Organization</h3>
-                        <ul class="space-y-4 text-emerald-50 text-sm font-medium">
-                            <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Publications</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Corporate Offerings</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Col 3: About Us -->
-                    <div>
-                        <h3 class="text-emerald-400 font-bold text-lg mb-6">About Us</h3>
-                        <ul class="space-y-4 text-emerald-50 text-sm font-medium">
-                            <li><a href="#" class="hover:text-white transition-colors">Mission & Vision</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Our Journey</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Our Team</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Our Achievements</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Volunteer With Us</a></li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Col 4: Resources & Partners -->
-                    <div>
-                        <h3 class="text-emerald-400 font-bold text-lg mb-6">Resources</h3>
-                        <ul class="space-y-4 text-emerald-50 text-sm mb-8 font-medium">
-                            <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">FAQs</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Terms & Conditions</a></li>
-                        </ul>
-                        
-                        <h3 class="text-emerald-400 font-bold text-lg mb-4">Partners</h3>
-                        <ul class="space-y-4 text-emerald-50 text-sm font-medium">
-                            <li><a href="#" class="hover:text-white transition-colors">Become a Corporate Partner</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Blockchain</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Bottom Action Row -->
-                <div class="flex flex-col xl:flex-row items-center justify-between py-6 border-t border-[#04331e] gap-6">
-                    <div class="flex flex-col sm:flex-row items-center gap-6">
-                        <span class="text-emerald-400 font-bold text-lg">Download PuneWaste App</span>
-                        <div class="flex gap-3">
-                            <a href="#" class="border border-slate-500 rounded-lg px-4 py-2 flex items-center gap-3 hover:bg-white/5 transition-colors text-white">
-                                <span class="material-symbols-outlined text-3xl">phone_iphone</span>
-                                <div class="text-left">
-                                    <div class="text-[10px] leading-none text-slate-300">Download on the</div>
-                                    <div class="text-sm font-bold leading-tight">App Store</div>
+
+                            <!-- === SCREEN 2: Citizen Map View === -->
+                            <div id="demoScreen2" class="absolute inset-0 flex flex-col opacity-0 transition-opacity duration-700 pointer-events-none">
+                                <!-- Mini Nav -->
+                                <div class="h-12 bg-[#0a1a11]/90 border-b border-[#ffd700]/20 flex items-center px-4 justify-between shrink-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-[#ffd700] text-sm">eco</span>
+                                        <span class="text-white font-bold text-xs">Citizen Portal</span>
+                                    </div>
+                                    <span class="text-xs text-slate-400 border border-white/10 px-2 py-0.5 rounded">← Back</span>
                                 </div>
-                            </a>
-                            <a href="#" class="border border-slate-500 rounded-lg px-4 py-2 flex items-center gap-3 hover:bg-white/5 transition-colors text-white">
-                                <span class="material-symbols-outlined text-3xl">android</span>
-                                <div class="text-left">
-                                    <div class="text-[10px] leading-none text-slate-300">Get it on</div>
-                                    <div class="text-sm font-bold leading-tight">Google Play</div>
+                                <!-- Map Area -->
+                                <div class="relative flex-1 bg-[#1a2a20]" style="background-image: radial-gradient(rgba(255,215,0,0.08) 1px, transparent 1px); background-size: 18px 18px;">
+                                    <!-- Grid lines -->
+                                    <div class="absolute inset-0 opacity-10" style="background: linear-gradient(#ffd700 1px, transparent 1px) 0 0 / 18px 18px, linear-gradient(90deg, #ffd700 1px, transparent 1px) 0 0 / 18px 18px;"></div>
+                                    
+                                    <!-- Map label -->
+                                    <div class="absolute top-3 left-4 bg-black/50 text-[#ffd700] text-[10px] px-3 py-1 rounded-full border border-[#ffd700]/30 font-bold">📍 Pune District Map</div>
+
+                                    <!-- Bin Markers -->
+                                    <div id="dmBin1" class="absolute opacity-0 transition-all duration-500" style="top:35%;left:30%;">
+                                        <div class="w-10 h-10 rounded-full border-2 border-green-400 bg-green-500/20 shadow-[0_0_12px_#22c55e] flex items-center justify-center animate-pulse">
+                                            <span class="material-symbols-outlined text-green-400 text-base">delete</span>
+                                        </div>
+                                        <div class="text-[9px] text-green-400 font-bold text-center mt-1">42%</div>
+                                    </div>
+                                    <div id="dmBin2" class="absolute opacity-0 transition-all duration-500" style="top:55%;left:60%;">
+                                        <div class="w-10 h-10 rounded-full border-2 border-red-400 bg-red-500/20 shadow-[0_0_12px_#ef4444] flex items-center justify-center animate-pulse">
+                                            <span class="material-symbols-outlined text-red-400 text-base">delete</span>
+                                        </div>
+                                        <div class="text-[9px] text-red-400 font-bold text-center mt-1">92% FULL</div>
+                                    </div>
+                                    <div id="dmBin3" class="absolute opacity-0 transition-all duration-500" style="top:25%;left:65%;">
+                                        <div class="w-10 h-10 rounded-full border-2 border-yellow-400 bg-yellow-500/20 shadow-[0_0_12px_#eab308] flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-yellow-400 text-base">delete</span>
+                                        </div>
+                                        <div class="text-[9px] text-yellow-400 font-bold text-center mt-1">71%</div>
+                                    </div>
+
+                                    <!-- Route Line -->
+                                    <svg id="dmRoute" class="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-500" viewBox="0 0 500 300" preserveAspectRatio="none">
+                                        <path d="M 80 160 Q 200 80 300 165" stroke="#ffd700" stroke-width="2" fill="none" stroke-dasharray="6,4" opacity="0.8"/>
+                                        <circle cx="80" cy="160" r="5" fill="#ffd700"/>
+                                        <circle cx="300" cy="165" r="5" fill="#ef4444"/>
+                                    </svg>
+
+                                    <!-- Info Panel -->
+                                    <div id="dmInfoPanel" class="absolute bottom-3 right-3 bg-[#0a1a11]/95 border border-[#ffd700]/30 rounded-xl p-3 w-44 opacity-0 transition-all duration-500">
+                                        <p class="text-[#ffd700] font-bold text-xs mb-1">Bin #B-07 Selected</p>
+                                        <p class="text-slate-300 text-[10px] mb-2">Shivajinagar, Pune</p>
+                                        <div class="w-full bg-white/10 rounded-full h-1.5 mb-1">
+                                            <div class="bg-red-500 h-1.5 rounded-full" style="width:92%"></div>
+                                        </div>
+                                        <p class="text-red-400 text-[9px] font-bold">92% Full — Urgent</p>
+                                        <div class="mt-2 bg-[#ffd700] text-[#0a130f] rounded-lg text-[10px] font-bold text-center py-1">Get Directions</div>
+                                    </div>
                                 </div>
-                            </a>
+                            </div>
+
+                            <!-- Animated Cursor -->
+                            <div id="demoCursor" class="absolute pointer-events-none z-50 transition-all ease-in-out" style="top:50%;left:50%;duration:0.8s;">
+                                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                    <path d="M4 2L18 11L11 13L8 20L4 2Z" fill="white" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>
+                                </svg>
+                                <div id="demoClickRipple" class="absolute -top-1 -left-1 w-5 h-5 rounded-full border-2 border-[#ffd700] scale-0 transition-transform duration-300 opacity-0"></div>
+                            </div>
+
                         </div>
                     </div>
-                    
-                    <div class="flex gap-4 flex-wrap justify-center">
-                        <a href="#" class="border border-[#058a58] text-white hover:bg-[#034d31] px-5 py-2.5 rounded-sm flex items-center gap-2 font-semibold transition-colors text-sm">
-                            <span class="material-symbols-outlined text-sm">download</span> Latest Newsletter
-                        </a>
-                        <a href="#" class="border border-[#058a58] text-white hover:bg-[#034d31] px-5 py-2.5 rounded-sm flex items-center gap-2 font-semibold transition-colors text-sm">
-                            <span class="material-symbols-outlined text-sm">download</span> Get Annual Report
-                        </a>
+
+                    <!-- Play Button -->
+                    <div class="absolute -bottom-6 left-1/2 -translate-x-1/2">
+                        <button id="playDemoBtn" onclick="playWalkthrough()" class="flex items-center gap-2 bg-gradient-to-r from-[#ffd700] to-[#b8860b] text-[#0a130f] font-extrabold px-8 py-3 rounded-full shadow-xl shadow-[#ffd700]/30 hover:scale-105 transition-transform text-sm">
+                            <span class="material-symbols-outlined text-xl" id="playIcon">play_arrow</span>
+                            <span id="playText">Play Walkthrough</span>
+                        </button>
                     </div>
-                </div>
-                
-                <!-- Copyright -->
-                <div class="text-center text-[10px] text-emerald-600 mt-8 font-bold">
-                    PuneWaste Management System is an initiative for a cleaner, greener Pune, having FCRA no. 347900195, and registered under Societies Registration Act, 1860.
                 </div>
             </div>
-        </footer>
+        </section>
+
     </div>
 
     <!-- ========== PAGE 2: TEAM LOGIN PAGE ========== -->
@@ -2477,6 +2523,212 @@
                 document.getElementById('detailFill').textContent = percentage + '%';
                 document.getElementById('detailFillBar').style.width = percentage + '%';
             }
+        }
+
+        // ===== Interactive Demo Walkthrough =====
+        let demoTimeouts = [];
+        let demoRunning = false;
+
+        function setDot(index) {
+            document.querySelectorAll('.demo-step-dot').forEach((d, i) => {
+                d.style.background = i === index ? '#ffd700' : 'rgba(255,255,255,0.15)';
+                d.style.transform = i === index ? 'scale(1.5)' : 'scale(1)';
+            });
+        }
+        function setLabel(text) {
+            const el = document.getElementById('demoStepLabel');
+            el.style.opacity = '0';
+            setTimeout(() => { el.textContent = text; el.style.opacity = '1'; }, 300);
+        }
+
+        function playWalkthrough() {
+            if (demoRunning) {
+                // Reset
+                demoRunning = false;
+                demoTimeouts.forEach(clearTimeout);
+                demoTimeouts = [];
+                resetDemo();
+                return;
+            }
+            demoRunning = true;
+            demoTimeouts.forEach(clearTimeout);
+            demoTimeouts = [];
+            document.getElementById('playIcon').textContent = 'stop';
+            document.getElementById('playText').textContent = 'Stop';
+            runDemoSteps();
+        }
+
+        function resetDemo() {
+            document.getElementById('playIcon').textContent = 'play_arrow';
+            document.getElementById('playText').textContent = 'Play Walkthrough';
+            document.getElementById('demoScreen1').style.opacity = '1';
+            document.getElementById('demoScreen2').style.opacity = '0';
+            document.getElementById('demoScreen2').style.pointerEvents = 'none';
+            document.getElementById('demoCard1').style.background = '';
+            document.getElementById('demoCard1').style.transform = '';
+            document.getElementById('demoCard1').style.boxShadow = '';
+            document.getElementById('demoCard2').style.background = '';
+            document.getElementById('demoCard2').style.transform = '';
+            ['dmBin1','dmBin2','dmBin3'].forEach(id => {
+                document.getElementById(id).style.opacity = '0';
+            });
+            document.getElementById('dmRoute').style.opacity = '0';
+            document.getElementById('dmInfoPanel').style.opacity = '0';
+            const cursor = document.getElementById('demoCursor');
+            cursor.style.top = '110%';
+            cursor.style.left = '50%';
+            cursor.style.transition = 'none';
+            setDot(-1);
+            setLabel('Click "Play Walkthrough" to begin');
+            demoRunning = false;
+        }
+
+        function moveCursor(x, y, duration) {
+            const cursor = document.getElementById('demoCursor');
+            cursor.style.transition = `top ${duration}ms ease-in-out, left ${duration}ms ease-in-out`;
+            cursor.style.top = y;
+            cursor.style.left = x;
+        }
+
+        function clickRipple() {
+            const ripple = document.getElementById('demoClickRipple');
+            ripple.style.opacity = '1';
+            ripple.style.transform = 'scale(2)';
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                ripple.style.transform = 'scale(0)';
+            }, 400);
+        }
+
+        function runDemoSteps() {
+            const screen1 = document.getElementById('demoScreen1');
+            const screen2 = document.getElementById('demoScreen2');
+            const card1 = document.getElementById('demoCard1');
+            const card2 = document.getElementById('demoCard2');
+
+            // Reset to start
+            screen1.style.opacity = '1';
+            screen2.style.opacity = '0';
+            screen2.style.pointerEvents = 'none';
+            card1.style.background = '';
+            card1.style.transform = '';
+            card1.style.boxShadow = '';
+            card2.style.background = '';
+            card2.style.transform = '';
+            ['dmBin1','dmBin2','dmBin3'].forEach(id => document.getElementById(id).style.opacity = '0');
+            document.getElementById('dmRoute').style.opacity = '0';
+            document.getElementById('dmInfoPanel').style.opacity = '0';
+
+            const cursor = document.getElementById('demoCursor');
+            cursor.style.transition = 'none';
+            cursor.style.top = '110%';
+            cursor.style.left = '50%';
+
+            // STEP 0: Landing screen shown
+            setDot(0);
+            setLabel('Step 1 — This is the PuneWaste Homepage');
+
+            // STEP 1: Cursor enters, moves to Citizen Access card
+            demoTimeouts.push(setTimeout(() => {
+                moveCursor('28%', '65%', 900);
+                setLabel('Step 2 — Hovering over "Citizen Access" card...');
+                setDot(1);
+            }, 1200));
+
+            // STEP 2: Hover highlight card1
+            demoTimeouts.push(setTimeout(() => {
+                card1.style.background = 'rgba(255,215,0,0.15)';
+                card1.style.boxShadow = '0 0 20px rgba(255,215,0,0.3)';
+                card1.style.transform = 'scale(1.06) translateY(-3px)';
+            }, 2100));
+
+            // STEP 3: Cursor also hovers card2 to show both
+            demoTimeouts.push(setTimeout(() => {
+                setLabel('Step 3 — Also checking "Municipal Team" option...');
+                moveCursor('62%', '65%', 900);
+                card1.style.background = '';
+                card1.style.boxShadow = '';
+                card1.style.transform = '';
+                card2.style.background = 'rgba(168,85,247,0.15)';
+                card2.style.boxShadow = '0 0 20px rgba(168,85,247,0.3)';
+                card2.style.transform = 'scale(1.06) translateY(-3px)';
+            }, 3200));
+
+            // STEP 4: Move back to card1 and click
+            demoTimeouts.push(setTimeout(() => {
+                card2.style.background = '';
+                card2.style.boxShadow = '';
+                card2.style.transform = '';
+                moveCursor('28%', '65%', 800);
+                setLabel('Step 4 — Clicking "Citizen Access" to enter portal...');
+                setDot(2);
+            }, 4500));
+
+            // Click ripple
+            demoTimeouts.push(setTimeout(() => {
+                clickRipple();
+                card1.style.background = 'rgba(255,215,0,0.3)';
+                card1.style.transform = 'scale(0.96)';
+            }, 5400));
+
+            // STEP 5: Transition to Citizen Map
+            demoTimeouts.push(setTimeout(() => {
+                screen1.style.opacity = '0';
+                screen2.style.opacity = '1';
+                screen2.style.pointerEvents = 'auto';
+                cursor.style.transition = 'none';
+                cursor.style.top = '30%';
+                cursor.style.left = '50%';
+                setLabel('Step 5 — Inside Citizen Portal — Map is loading...');
+                setDot(3);
+            }, 6100));
+
+            // STEP 6: Show bin markers one by one
+            demoTimeouts.push(setTimeout(() => {
+                document.getElementById('dmBin1').style.opacity = '1';
+            }, 7000));
+            demoTimeouts.push(setTimeout(() => {
+                document.getElementById('dmBin2').style.opacity = '1';
+            }, 7500));
+            demoTimeouts.push(setTimeout(() => {
+                document.getElementById('dmBin3').style.opacity = '1';
+                setLabel('Step 5 — Smart bins appear on the map with live fill levels');
+            }, 8000));
+
+            // STEP 7: Move cursor to red (critical) bin
+            demoTimeouts.push(setTimeout(() => {
+                moveCursor('60%', '58%', 900);
+                setLabel('Step 6 — Selecting critical bin (92% full)...');
+            }, 9000));
+
+            demoTimeouts.push(setTimeout(() => {
+                clickRipple();
+                document.getElementById('dmRoute').style.opacity = '1';
+            }, 10000));
+
+            // STEP 8: Show route + info panel
+            demoTimeouts.push(setTimeout(() => {
+                document.getElementById('dmInfoPanel').style.opacity = '1';
+                setLabel('Step 6 — Route to bin calculated. Info panel shows details!');
+                setDot(4);
+            }, 10600));
+
+            // STEP 9: Cursor moves to "Get Directions" button
+            demoTimeouts.push(setTimeout(() => {
+                moveCursor('83%', '82%', 700);
+            }, 11400));
+
+            demoTimeouts.push(setTimeout(() => {
+                clickRipple();
+            }, 12200));
+
+            // END
+            demoTimeouts.push(setTimeout(() => {
+                document.getElementById('playIcon').textContent = 'replay';
+                document.getElementById('playText').textContent = 'Watch Again';
+                setLabel('✅ Demo Complete — You\'re ready to use PuneWaste!');
+                demoRunning = false;
+            }, 13000));
         }
 
         // Initialize on load
