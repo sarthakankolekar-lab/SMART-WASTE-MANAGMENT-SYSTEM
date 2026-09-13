@@ -75,3 +75,15 @@ SMART-WASTE-MANAGMENT-SYSTEM/
 2. Choose **Citizen Access** to find bins near you
 3. Choose **Municipal Team** to log in to the admin dashboard
 4. Scroll down on the homepage to watch the **Interactive Demo** walkthrough
+
+---
+
+## 📞 Contact
+
+- 📧 support@punewaste.org
+- 📞 +91 740 9999 111
+- 🕘 09:00 AM – 6:00 PM IST (Monday to Saturday)
+
+---
+
+> *PuneWaste Management System is an initiative for a cleaner, greener Pune — registered under Societies Registration Act, 1860. FCRA No. 347900195*
