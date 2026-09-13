@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pune Waste Optimizer - Smart Management</title>
-    
+
     <!-- Leaflet CSS and JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-    
+
     <!-- Tailwind & Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background: #0a130f;
             min-height: 100vh;
         }
-        
+
         /* Glassmorphism Effects */
         .glass-nav {
             background: rgba(16, 34, 25, 0.7);
@@ -36,61 +39,63 @@
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 215, 0, 0.2);
         }
-        
+
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.3s ease;
         }
-        
+
         .glass-card:hover {
             background: rgba(255, 255, 255, 0.05);
             border-color: rgba(255, 215, 0, 0.3);
             transform: translateY(-4px) scale(1.02);
             box-shadow: 0 20px 30px -10px rgba(255, 215, 0, 0.2);
         }
-        
+
         .glass-panel {
             background: rgba(16, 34, 25, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
-        
+
         .glass-effect {
             background: rgba(16, 34, 25, 0.8);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
-        
+
         .nav-link {
             color: #ffd700;
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .nav-link:hover {
             color: #ffffff;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
-        
+
         .hero-gradient {
             background: linear-gradient(180deg, rgba(16, 34, 25, 0.4) 0%, rgba(16, 34, 25, 0.9) 100%);
         }
-        
+
         .map-gradient {
             background: radial-gradient(circle at center, #1a3326 0%, #102219 100%);
         }
-        
+
         /* Leaflet Map Container */
-        #map, #teamMap, #fullMap {
+        #map,
+        #teamMap,
+        #fullMap {
             height: 100%;
             width: 100%;
             background: #1a2a20;
         }
-        
+
         /* Custom Markers */
         .bin-marker-lime {
             width: 40px;
@@ -105,13 +110,21 @@
             box-shadow: 0 0 20px #84cc16;
             animation: pulse 2s infinite;
         }
-        
+
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 #84cc16; }
-            70% { box-shadow: 0 0 0 15px rgba(132, 204, 22, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(132, 204, 22, 0); }
+            0% {
+                box-shadow: 0 0 0 0 #84cc16;
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(132, 204, 22, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(132, 204, 22, 0);
+            }
         }
-        
+
         .user-marker {
             width: 40px;
             height: 40px;
@@ -123,7 +136,7 @@
             justify-content: center;
             font-size: 20px;
         }
-        
+
         .hq-marker-main {
             width: 50px;
             height: 50px;
@@ -136,7 +149,7 @@
             font-size: 24px;
             box-shadow: 0 0 25px gold;
         }
-        
+
         .hq-marker-sub {
             width: 45px;
             height: 45px;
@@ -149,7 +162,7 @@
             font-size: 22px;
             box-shadow: 0 0 20px #ffd700;
         }
-        
+
         /* Route Instructions */
         .route-instructions {
             position: absolute;
@@ -167,39 +180,41 @@
             color: white;
             display: none;
         }
-        
+
         .route-instructions.show {
             display: block;
         }
-        
+
         .route-instruction-item {
             padding: 0.5rem;
             border-bottom: 1px solid rgba(255, 215, 0, 0.1);
             font-size: 0.9rem;
             color: #ffd700;
         }
-        
+
         .route-instruction-item:last-child {
             border-bottom: none;
         }
-        
+
         .route-distance {
             color: #84cc16;
             font-weight: bold;
         }
-        
+
         /* Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: transparent;
         }
+
         ::-webkit-scrollbar-thumb {
             background: rgba(255, 215, 0, 0.3);
             border-radius: 10px;
         }
-        
+
         /* Route Loading */
         .route-loading {
             position: absolute;
@@ -210,18 +225,18 @@
             backdrop-filter: blur(12px);
             padding: 10px 20px;
             border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             color: #ffd700;
             font-weight: 600;
             z-index: 1000;
             border: 1px solid rgba(255, 215, 0, 0.3);
             display: none;
         }
-        
+
         .route-loading.show {
             display: block;
         }
-        
+
         /* View Map Button */
         .view-map-btn {
             position: fixed;
@@ -248,7 +263,7 @@
             transform: scale(1.1);
             box-shadow: 0 8px 30px rgba(255, 215, 0, 0.8);
         }
-        
+
         /* AI Analysis Button */
         .ai-analysis-btn {
             position: fixed;
@@ -274,12 +289,12 @@
             transform: scale(1.1);
             box-shadow: 0 8px 30px rgba(168, 85, 247, 0.8);
         }
-        
+
         /* Hide elements */
         .hidden {
             display: none !important;
         }
-        
+
         /* Critical bin cards */
         .critical-card {
             background: rgba(16, 34, 25, 0.7);
@@ -290,13 +305,13 @@
             position: relative;
             transition: all 0.3s ease;
         }
-        
+
         .critical-card:hover {
             transform: translateY(-4px) scale(1.02);
             border-color: rgba(239, 68, 68, 0.6);
             box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.2);
         }
-        
+
         .warning-badge {
             position: absolute;
             top: -10px;
@@ -379,12 +394,21 @@
         }
 
         @keyframes goldPulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 215, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(255, 215, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+            }
         }
     </style>
 </head>
+
 <body class="bg-background-dark font-display text-slate-100">
     <!-- ========== PAGE 1: LANDING PAGE ========== -->
     <div id="landingPage" class="min-h-screen">
@@ -395,9 +419,11 @@
                     <div class="size-10 gold-bg rounded-lg flex items-center justify-center border gold-border">
                         <span class="material-symbols-outlined gold-text text-2xl">eco</span>
                     </div>
-                    <h1 class="text-xl font-bold tracking-tight text-slate-100">Pune<span class="gold-text">Waste</span></h1>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-100">Pune<span class="gold-text">Waste</span>
+                    </h1>
                 </div>
-                <button onclick="showCitizenPage()" class="bg-[#ffd700] hover:bg-[#ffd700]/90 text-background-dark px-6 py-2.5 rounded-lg text-sm font-bold transition-all active:scale-95 shadow-lg shadow-[#ffd700]/20">
+                <button onclick="showCitizenPage()"
+                    class="bg-[#ffd700] hover:bg-[#ffd700]/90 text-background-dark px-6 py-2.5 rounded-lg text-sm font-bold transition-all active:scale-95 shadow-lg shadow-[#ffd700]/20">
                     Get Started
                 </button>
             </div>
@@ -407,47 +433,57 @@
         <main class="relative min-h-screen flex flex-col pt-20">
             <div class="absolute inset-0 z-0">
                 <div class="absolute inset-0 hero-gradient z-10"></div>
-                <img alt="Modern sustainable city environment" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2070&auto=format&fit=crop">
+                <img alt="Modern sustainable city environment" class="w-full h-full object-cover"
+                    src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2070&auto=format&fit=crop">
             </div>
-            
-            <div class="relative z-20 flex-1 flex flex-col items-center justify-center px-6 text-center max-w-4xl mx-auto">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full gold-bg border gold-border gold-text text-xs font-bold uppercase tracking-widest mb-6">
+
+            <div
+                class="relative z-20 flex-1 flex flex-col items-center justify-center px-6 text-center max-w-4xl mx-auto">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full gold-bg border gold-border gold-text text-xs font-bold uppercase tracking-widest mb-6">
                     <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffd700] opacity-75"></span>
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ffd700] opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-[#ffd700]"></span>
                     </span>
                     Live in Pune District
                 </div>
-                
+
                 <h1 class="text-4xl md:text-7xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight">
-                    Smart Waste Management <br/> <span class="gold-text">for a Cleaner Pune</span>
+                    Smart Waste Management <br /> <span class="gold-text">for a Cleaner Pune</span>
                 </h1>
-                
+
                 <p class="text-lg md:text-xl text-slate-300 mb-12 max-w-2xl leading-relaxed">
-                    Optimizing collection, reducing environmental impact, and empowering citizens with real-time data and AI-driven logistics.
+                    Optimizing collection, reducing environmental impact, and empowering citizens with real-time data
+                    and AI-driven logistics.
                 </p>
 
                 <!-- Action Cards -->
                 <div class="grid md:grid-cols-2 gap-6 w-full max-w-4xl">
                     <!-- Citizen Card -->
                     <div onclick="showCitizenPage()" class="glass-card p-8 rounded-2xl text-left group cursor-pointer">
-                        <div class="size-14 rounded-xl gold-bg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <div
+                            class="size-14 rounded-xl gold-bg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined gold-text text-3xl">person_pin_circle</span>
                         </div>
                         <h3 class="text-xl font-bold text-white mb-2">Citizen Access</h3>
-                        <p class="text-slate-400 mb-6 leading-relaxed">Find nearby smart bins, report overflow levels, and track collection schedules in your area.</p>
+                        <p class="text-slate-400 mb-6 leading-relaxed">Find nearby smart bins, report overflow levels,
+                            and track collection schedules in your area.</p>
                         <div class="flex items-center gold-text font-semibold text-sm group-hover:gap-2 transition-all">
                             Launch Citizen Portal <span class="material-symbols-outlined text-sm">arrow_forward</span>
                         </div>
                     </div>
-                    
+
                     <!-- Municipal Card -->
-                    <div onclick="showTeamLoginPage()" class="glass-card p-8 rounded-2xl text-left group cursor-pointer">
-                        <div class="size-14 rounded-xl gold-bg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <div onclick="showTeamLoginPage()"
+                        class="glass-card p-8 rounded-2xl text-left group cursor-pointer">
+                        <div
+                            class="size-14 rounded-xl gold-bg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined gold-text text-3xl">domain</span>
                         </div>
                         <h3 class="text-xl font-bold text-white mb-2">Municipal Team</h3>
-                        <p class="text-slate-400 mb-6 leading-relaxed">Comprehensive dashboard for officials to manage fleet routes, bin sensors, and efficiency metrics.</p>
+                        <p class="text-slate-400 mb-6 leading-relaxed">Comprehensive dashboard for officials to manage
+                            fleet routes, bin sensors, and efficiency metrics.</p>
                         <div class="flex items-center gold-text font-semibold text-sm group-hover:gap-2 transition-all">
                             Admin Dashboard <span class="material-symbols-outlined text-sm">arrow_forward</span>
                         </div>
@@ -455,6 +491,237 @@
                 </div>
             </div>
         </main>
+
+        <!-- How It Works & Advantages Section -->
+        <section class="relative z-30 bg-[#0a130f] border-t border-[rgba(255,215,0,0.1)] py-24 px-6 mt-12">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full gold-bg border gold-border gold-text text-xs font-bold uppercase tracking-widest mb-6 shadow-lg shadow-[#ffd700]/10">
+                        <span class="material-symbols-outlined text-[16px]">psychology</span>
+                        Our Process
+                    </div>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight">How <span class="gold-text">PuneWaste</span> Works</h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed">We leverage IoT sensors and AI-driven logistics to transform traditional waste management into a highly efficient, sustainable operation.</p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8 mb-32 relative">
+                    <!-- Connecting Line (Desktop only) -->
+                    <div class="hidden md:block absolute top-[5.5rem] left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-transparent via-[#ffd700]/30 to-transparent z-0"></div>
+                    
+                    <!-- Step 1 -->
+                    <div class="glass-card p-10 rounded-[2rem] text-center group relative z-10 hover:-translate-y-2 transition-all duration-300">
+                        <div class="size-24 mx-auto gold-bg border border-[#ffd700]/40 rounded-2xl flex items-center justify-center mb-8 shadow-xl shadow-[#ffd700]/20 group-hover:rotate-12 transition-transform duration-500">
+                            <span class="material-symbols-outlined text-5xl gold-text">sensors</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">1. Smart Data Collection</h3>
+                        <p class="text-slate-400 leading-relaxed">IoT sensors placed in waste bins across Pune district monitor fill levels in real-time, instantly alerting our centralized system when a bin approaches capacity.</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="glass-card p-10 rounded-[2rem] text-center group relative z-10 md:mt-12 hover:-translate-y-2 transition-all duration-300">
+                        <div class="size-24 mx-auto bg-purple-900/30 border border-purple-500/40 rounded-2xl flex items-center justify-center mb-8 shadow-xl shadow-purple-500/20 group-hover:scale-110 transition-transform duration-500">
+                            <span class="material-symbols-outlined text-5xl text-purple-400">route</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">2. AI Route Optimization</h3>
+                        <p class="text-slate-400 leading-relaxed">Our advanced algorithm continuously analyzes traffic patterns and bin fill levels to generate the most fuel-efficient collection routes for municipal trucks.</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="glass-card p-10 rounded-[2rem] text-center group relative z-10 hover:-translate-y-2 transition-all duration-300">
+                        <div class="size-24 mx-auto bg-emerald-900/30 border border-emerald-500/40 rounded-2xl flex items-center justify-center mb-8 shadow-xl shadow-emerald-500/20 group-hover:-rotate-12 transition-transform duration-500">
+                            <span class="material-symbols-outlined text-5xl text-emerald-400">recycling</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">3. Successful Disposal</h3>
+                        <p class="text-slate-400 leading-relaxed">Waste is collected on time, preventing overflow, and efficiently transported to recycling centers and certified landfills using sustainable practices.</p>
+                    </div>
+                </div>
+
+                <!-- Advantages Section -->
+                <div class="glass-panel rounded-[3rem] p-8 md:p-16 border gold-border overflow-hidden relative shadow-2xl">
+                    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[#ffd700]/5 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none"></div>
+                    <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px] -ml-20 -mb-20 pointer-events-none"></div>
+                    
+                    <div class="relative z-10 grid lg:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-slate-300 text-xs font-bold uppercase tracking-widest mb-6">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                Core Benefits
+                            </div>
+                            <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">Advantages of Our <br>Smart System</h2>
+                            <p class="text-slate-300 mb-10 text-lg leading-relaxed">By upgrading to a smart waste management framework, Pune achieves significant environmental and economic benefits, ensuring a higher quality of life for all citizens.</p>
+                            
+                            <div class="space-y-8">
+                                <div class="flex gap-5 group">
+                                    <div class="mt-1 size-12 rounded-xl gold-bg flex items-center justify-center shrink-0 border border-[#ffd700]/30 group-hover:scale-110 transition-transform">
+                                        <span class="material-symbols-outlined gold-text">co2</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-white font-bold text-xl mb-2 group-hover:text-[#ffd700] transition-colors">Reduced Carbon Footprint</h4>
+                                        <p class="text-slate-400 leading-relaxed">Optimized routing means fewer trucks on the road, drastically cutting down greenhouse gas emissions and reducing overall fuel consumption.</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-5 group">
+                                    <div class="mt-1 size-12 rounded-xl bg-blue-900/30 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30 group-hover:scale-110 transition-transform">
+                                        <span class="material-symbols-outlined">savings</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-white font-bold text-xl mb-2 group-hover:text-blue-400 transition-colors">Cost Effective Operations</h4>
+                                        <p class="text-slate-400 leading-relaxed">Municipalities save up to 40% on operational costs through targeted collections instead of rigid schedule-based pickups that waste resources.</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-5 group">
+                                    <div class="mt-1 size-12 rounded-xl bg-emerald-900/30 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30 group-hover:scale-110 transition-transform">
+                                        <span class="material-symbols-outlined">health_and_safety</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-white font-bold text-xl mb-2 group-hover:text-emerald-400 transition-colors">Improved Public Hygiene</h4>
+                                        <p class="text-slate-400 leading-relaxed">Eliminating overflowing bins prevents pest infestations and unpleasant odors, ensuring a cleaner, safer, and healthier city environment.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=2070&auto=format&fit=crop" alt="Smart Waste System" class="rounded-[2rem] shadow-2xl border border-white/10 relative z-10 w-full object-cover h-[500px]">
+                            
+                            <!-- Floating Stat 1 -->
+                            <div class="absolute -left-12 bottom-12 glass-card p-6 rounded-2xl z-20 w-56 shadow-2xl hidden md:block border-l-4 border-l-emerald-400">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="material-symbols-outlined text-emerald-400">trending_down</span>
+                                    <span class="text-sm text-slate-300 font-bold uppercase tracking-wider">Emissions</span>
+                                </div>
+                                <div class="text-5xl font-extrabold text-white">-45%</div>
+                                <p class="text-xs text-slate-400 mt-2">Reduction in CO2 output</p>
+                            </div>
+                            
+                            <!-- Floating Stat 2 -->
+                            <div class="absolute -right-8 top-12 glass-card p-5 rounded-2xl z-20 w-48 shadow-2xl hidden md:block border-l-4 border-l-[#ffd700]">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="material-symbols-outlined text-[#ffd700]">timer</span>
+                                    <span class="text-sm text-slate-300 font-bold uppercase tracking-wider">Efficiency</span>
+                                </div>
+                                <div class="text-4xl font-extrabold text-white">+60%</div>
+                                <p class="text-xs text-slate-400 mt-2">Faster collection times</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <footer class="bg-[#04130b] text-white pt-16 pb-8 border-t-4 border-[#032918] relative z-30">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+                    
+                    <!-- Col 1: Logo & Contact & Newsletter -->
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="size-10 gold-bg rounded-lg flex items-center justify-center text-background-dark">
+                                <span class="material-symbols-outlined font-bold">eco</span>
+                            </div>
+                            <h2 class="text-3xl font-extrabold tracking-tight text-white">Pune<span class="gold-text">Waste</span></h2>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-lg font-bold mb-3 text-white">Contact Us :</h3>
+                            <p class="text-white font-bold mb-1">+91 740 9999 111</p>
+                            <p class="text-emerald-500 text-sm mb-2 font-medium">09.00am to 6.00pm IST (Monday to Saturday)</p>
+                            <p class="text-white font-bold">support@punewaste.org</p>
+                        </div>
+                        
+                        <div class="flex gap-4 mb-8 text-slate-300">
+                            <a href="#" class="hover:text-white transition-colors"><span class="material-symbols-outlined text-2xl">facebook</span></a>
+                            <a href="#" class="hover:text-white transition-colors"><span class="material-symbols-outlined text-2xl">alternate_email</span></a>
+                            <a href="#" class="hover:text-white transition-colors"><span class="material-symbols-outlined text-2xl">smart_display</span></a>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-bold mb-3 text-white">Subscribe For Newsletter</h3>
+                            <form class="flex gap-2 max-w-sm">
+                                <input type="email" placeholder="Email" class="flex-1 bg-white px-4 py-2 text-slate-900 focus:outline-none rounded-sm">
+                                <button type="submit" class="bg-[#034d31] hover:bg-[#023b26] border border-[#058a58] text-white px-6 py-2 font-bold transition-colors rounded-sm">Go</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Col 2: Organization -->
+                    <div>
+                        <h3 class="text-emerald-400 font-bold text-lg mb-6">Organization</h3>
+                        <ul class="space-y-4 text-emerald-50 text-sm font-medium">
+                            <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Publications</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Corporate Offerings</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Col 3: About Us -->
+                    <div>
+                        <h3 class="text-emerald-400 font-bold text-lg mb-6">About Us</h3>
+                        <ul class="space-y-4 text-emerald-50 text-sm font-medium">
+                            <li><a href="#" class="hover:text-white transition-colors">Mission & Vision</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Our Journey</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Our Team</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Our Achievements</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Volunteer With Us</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Col 4: Resources & Partners -->
+                    <div>
+                        <h3 class="text-emerald-400 font-bold text-lg mb-6">Resources</h3>
+                        <ul class="space-y-4 text-emerald-50 text-sm mb-8 font-medium">
+                            <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">FAQs</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Terms & Conditions</a></li>
+                        </ul>
+                        
+                        <h3 class="text-emerald-400 font-bold text-lg mb-4">Partners</h3>
+                        <ul class="space-y-4 text-emerald-50 text-sm font-medium">
+                            <li><a href="#" class="hover:text-white transition-colors">Become a Corporate Partner</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Blockchain</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Bottom Action Row -->
+                <div class="flex flex-col xl:flex-row items-center justify-between py-6 border-t border-[#04331e] gap-6">
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <span class="text-emerald-400 font-bold text-lg">Download PuneWaste App</span>
+                        <div class="flex gap-3">
+                            <a href="#" class="border border-slate-500 rounded-lg px-4 py-2 flex items-center gap-3 hover:bg-white/5 transition-colors text-white">
+                                <span class="material-symbols-outlined text-3xl">phone_iphone</span>
+                                <div class="text-left">
+                                    <div class="text-[10px] leading-none text-slate-300">Download on the</div>
+                                    <div class="text-sm font-bold leading-tight">App Store</div>
+                                </div>
+                            </a>
+                            <a href="#" class="border border-slate-500 rounded-lg px-4 py-2 flex items-center gap-3 hover:bg-white/5 transition-colors text-white">
+                                <span class="material-symbols-outlined text-3xl">android</span>
+                                <div class="text-left">
+                                    <div class="text-[10px] leading-none text-slate-300">Get it on</div>
+                                    <div class="text-sm font-bold leading-tight">Google Play</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4 flex-wrap justify-center">
+                        <a href="#" class="border border-[#058a58] text-white hover:bg-[#034d31] px-5 py-2.5 rounded-sm flex items-center gap-2 font-semibold transition-colors text-sm">
+                            <span class="material-symbols-outlined text-sm">download</span> Latest Newsletter
+                        </a>
+                        <a href="#" class="border border-[#058a58] text-white hover:bg-[#034d31] px-5 py-2.5 rounded-sm flex items-center gap-2 font-semibold transition-colors text-sm">
+                            <span class="material-symbols-outlined text-sm">download</span> Get Annual Report
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Copyright -->
+                <div class="text-center text-[10px] text-emerald-600 mt-8 font-bold">
+                    PuneWaste Management System is an initiative for a cleaner, greener Pune, having FCRA no. 347900195, and registered under Societies Registration Act, 1860.
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- ========== PAGE 2: TEAM LOGIN PAGE ========== -->
@@ -466,7 +733,8 @@
                 </div>
                 <h1 class="text-xl font-bold">Pune<span class="gold-text">Waste</span></h1>
             </div>
-            <button onclick="showLandingPage()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+            <button onclick="showLandingPage()"
+                class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
                 <span class="material-symbols-outlined text-sm align-middle">arrow_back</span> Back
             </button>
         </nav>
@@ -474,21 +742,24 @@
         <div class="flex items-center justify-center min-h-[calc(100vh-80px)] p-6">
             <div class="glass-panel rounded-3xl p-8 max-w-md w-full">
                 <h2 class="text-2xl font-bold mb-6 text-center gold-text">Team Login</h2>
-                
+
                 <div class="space-y-4">
                     <div>
                         <label class="text-sm text-slate-400 mb-1 block">Email</label>
-                        <input type="email" id="teamEmail" value="admin@pmc.com" class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100 focus:ring-[#ffd700] focus:border-[#ffd700]">
+                        <input type="email" id="teamEmail" value="admin@pmc.com"
+                            class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100 focus:ring-[#ffd700] focus:border-[#ffd700]">
                     </div>
-                    
+
                     <div>
                         <label class="text-sm text-slate-400 mb-1 block">Password</label>
-                        <input type="password" id="teamPassword" value="password" class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100 focus:ring-[#ffd700] focus:border-[#ffd700]">
+                        <input type="password" id="teamPassword" value="password"
+                            class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100 focus:ring-[#ffd700] focus:border-[#ffd700]">
                     </div>
-                    
+
                     <div>
                         <label class="text-sm text-slate-400 mb-1 block">Select HQ</label>
-                        <select id="teamHQ" onchange="loadTowns()" class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100">
+                        <select id="teamHQ" onchange="loadTowns()"
+                            class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100">
                             <option value="">Select HQ</option>
                             <option value="Pimpri-Chinchwad">Pimpri-Chinchwad HQ</option>
                             <option value="Central Pune">Central Pune (PMC Area) HQ</option>
@@ -497,18 +768,20 @@
                             <option value="Talegaon">Talegaon Cluster HQ</option>
                         </select>
                     </div>
-                    
+
                     <div>
                         <label class="text-sm text-slate-400 mb-1 block">Select Town</label>
-                        <select id="teamTown" class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100">
+                        <select id="teamTown"
+                            class="w-full bg-slate-800/50 border gold-border rounded-xl px-4 py-3 text-slate-100">
                             <option value="">First select HQ</option>
                         </select>
                     </div>
-                    
-                    <button onclick="teamLogin()" class="w-full bg-[#ffd700] hover:bg-[#ffd700]/90 text-background-dark font-bold py-3 rounded-xl mt-4 transition-all">
+
+                    <button onclick="teamLogin()"
+                        class="w-full bg-[#ffd700] hover:bg-[#ffd700]/90 text-background-dark font-bold py-3 rounded-xl mt-4 transition-all">
                         Login to Dashboard
                     </button>
-                    
+
                     <p class="text-center text-slate-500 text-sm mt-4">Demo: Any email/password works</p>
                 </div>
             </div>
@@ -528,18 +801,19 @@
                     <p class="gold-text text-[10px] uppercase font-bold tracking-widest">Optimizer v2.0</p>
                 </div>
             </div>
-            
+
             <nav class="flex-1 space-y-2">
                 <a class="flex items-center gap-3 px-4 py-3 rounded-xl gold-bg gold-text border gold-border" href="#">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span class="font-medium text-sm">Dashboard</span>
                 </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 transition-all" href="#">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 transition-all"
+                    href="#">
                     <span class="material-symbols-outlined">map</span>
                     <span class="font-medium text-sm">Fleet Map</span>
                 </a>
             </nav>
-            
+
             <div class="mt-auto pt-6 border-t gold-border">
                 <!-- Empty -->
             </div>
@@ -551,13 +825,17 @@
             <header class="sticky top-0 z-40 glass border-b gold-border px-8 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-4 flex-1 max-w-xl">
                     <div class="relative w-full">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                        <input class="w-full bg-white/5 border gold-border rounded-xl py-2 pl-10 pr-4 focus:ring-[#ffd700] focus:border-[#ffd700] text-sm" placeholder="Search bins..." type="text">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input
+                            class="w-full bg-white/5 border gold-border rounded-xl py-2 pl-10 pr-4 focus:ring-[#ffd700] focus:border-[#ffd700] text-sm"
+                            placeholder="Search bins..." type="text">
                     </div>
                 </div>
-                
+
                 <div class="flex items-center gap-3">
-                    <button onclick="logoutTeam()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                    <button onclick="logoutTeam()"
+                        class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">logout</span>
                         Logout
                     </button>
@@ -574,7 +852,8 @@
                     <!-- Left: Bin List -->
                     <div class="lg:w-1/3 flex flex-col gap-4">
                         <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-bold">Bin Monitoring - <span id="townName" class="gold-text"></span></h2>
+                            <h2 class="text-xl font-bold">Bin Monitoring - <span id="townName" class="gold-text"></span>
+                            </h2>
                         </div>
                         <div class="flex-1 overflow-y-auto pr-2 space-y-4" id="teamBinsGrid"></div>
                     </div>
@@ -582,7 +861,7 @@
                     <!-- Right: Map Interface -->
                     <div class="flex-1 glass-card rounded-3xl overflow-hidden relative">
                         <div id="teamMap" class="absolute inset-0"></div>
-                        
+
                         <!-- Route Instructions -->
                         <div class="route-instructions" id="routeInstructions">
                             <h3 class="font-bold gold-text mb-2 flex items-center gap-2">
@@ -591,7 +870,7 @@
                             </h3>
                             <div id="instructionsList"></div>
                         </div>
-                        
+
                         <!-- Map Legend -->
                         <div class="absolute bottom-6 left-6 z-10">
                             <div class="glass-panel px-4 py-2 rounded-2xl flex gap-6">
@@ -613,12 +892,12 @@
                 </div>
             </div>
         </main>
-        
+
         <!-- View Map Button (Bottom Left) -->
         <button class="view-map-btn" onclick="showFullMapPage()">
             <span class="material-symbols-outlined">map</span>
         </button>
-        
+
         <!-- AI Analysis Button (Bottom Right) -->
         <button class="ai-analysis-btn" onclick="showAIAnalysis()">
             <span class="material-symbols-outlined">auto_awesome</span>
@@ -634,13 +913,15 @@
                 </div>
                 <h1 class="text-xl font-bold">AI Analysis - Critical Bins (75-100%)</h1>
             </div>
-            <button onclick="backToTeamDashboard()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
+            <button onclick="backToTeamDashboard()"
+                class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
                 <span class="material-symbols-outlined text-sm align-middle">arrow_back</span> Back
             </button>
         </nav>
 
         <div class="p-8">
-            <h2 class="text-2xl font-bold mb-6">Bins Requiring Immediate Attention in <span id="aiTownName" class="gold-text"></span></h2>
+            <h2 class="text-2xl font-bold mb-6">Bins Requiring Immediate Attention in <span id="aiTownName"
+                    class="gold-text"></span></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="criticalBinsGrid"></div>
         </div>
     </div>
@@ -655,7 +936,8 @@
                 <h1 class="text-xl font-bold">Citizen Portal</h1>
             </div>
             <div class="flex gap-3">
-                <button onclick="showLandingPage()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
+                <button onclick="showLandingPage()"
+                    class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
                     <span class="material-symbols-outlined text-sm align-middle">home</span> Home
                 </button>
             </div>
@@ -679,7 +961,8 @@
                 </div>
                 <h1 class="text-xl font-bold">Bin Details</h1>
             </div>
-            <button onclick="showBinsPage()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
+            <button onclick="showBinsPage()"
+                class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold">
                 <span class="material-symbols-outlined text-sm align-middle">arrow_back</span> Back to Bins
             </button>
         </nav>
@@ -698,39 +981,46 @@
                                 <p class="text-slate-400 text-sm">Click below to update fill level</p>
                             </div>
                         </div>
-                        
+
                         <div class="mb-6">
                             <div class="flex justify-between text-sm mb-2">
                                 <span class="text-slate-400">Current Fill Level</span>
                                 <span class="font-bold text-2xl" id="detailFill">0%</span>
                             </div>
                             <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
-                                <div id="detailFillBar" class="bg-[#84cc16] h-full rounded-full" style="width: 0%"></div>
+                                <div id="detailFillBar" class="bg-[#84cc16] h-full rounded-full" style="width: 0%">
+                                </div>
                             </div>
                         </div>
-                        
+
                         <div class="mb-6">
                             <p class="text-sm text-slate-400 mb-3">Update Fill Level:</p>
                             <div class="flex gap-2 flex-wrap">
-                                <button onclick="updateBinFill(0)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">0%</button>
-                                <button onclick="updateBinFill(25)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">25%</button>
-                                <button onclick="updateBinFill(50)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">50%</button>
-                                <button onclick="updateBinFill(75)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">75%</button>
-                                <button onclick="updateBinFill(100)" class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">100%</button>
+                                <button onclick="updateBinFill(0)"
+                                    class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">0%</button>
+                                <button onclick="updateBinFill(25)"
+                                    class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">25%</button>
+                                <button onclick="updateBinFill(50)"
+                                    class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">50%</button>
+                                <button onclick="updateBinFill(75)"
+                                    class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">75%</button>
+                                <button onclick="updateBinFill(100)"
+                                    class="flex-1 min-w-[60px] bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all pop-hover">100%</button>
                             </div>
                         </div>
-                        
-                        <button onclick="showReportModal()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all pop-hover">
+
+                        <button onclick="showReportModal()"
+                            class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all pop-hover">
                             <span class="material-symbols-outlined">warning</span>
                             Report Overflow
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Right: Map (Full Height) -->
                 <div class="flex-1 glass-card rounded-3xl overflow-hidden relative">
                     <div id="map" class="absolute inset-0"></div>
-                    
+
                     <!-- Route Instructions for Citizen -->
                     <div class="route-instructions" id="citizenRouteInstructions">
                         <h3 class="font-bold gold-text mb-2 flex items-center gap-2">
@@ -746,14 +1036,17 @@
 
     <!-- ========== PAGE 7: FULL MAP PAGE (GOLD THEME) ========== -->
     <div id="fullMapPage" class="hidden full-map-page">
-        <nav class="glass-nav" style="background: rgba(16, 34, 25, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 215, 0, 0.2); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <nav class="glass-nav"
+            style="background: rgba(16, 34, 25, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 215, 0, 0.2); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
             <div class="flex items-center gap-3">
                 <div class="size-10 gold-bg rounded-lg flex items-center justify-center border gold-border">
                     <span class="material-symbols-outlined gold-text text-2xl">map</span>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight text-slate-100">Pune<span class="gold-text"> Complete Map</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-slate-100">Pune<span class="gold-text"> Complete
+                        Map</span></h1>
             </div>
-            <button onclick="backToTeamDashboard()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
+            <button onclick="backToTeamDashboard()"
+                class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
                 <span class="material-symbols-outlined text-sm">arrow_back</span>
                 Back to Dashboard
             </button>
@@ -771,7 +1064,9 @@
                 <div>
                     <h3 class="text-2xl font-bold text-white mb-1">Report Bin Overflow</h3>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-[#ffd700] bg-[#ffd700]/10 px-2 py-0.5 rounded">Active Node</span>
+                        <span
+                            class="text-xs font-semibold uppercase tracking-wider text-[#ffd700] bg-[#ffd700]/10 px-2 py-0.5 rounded">Active
+                            Node</span>
                         <p class="text-slate-400 text-sm font-medium" id="reportBinId">Bin ID: Loading...</p>
                     </div>
                 </div>
@@ -779,50 +1074,62 @@
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            
+
             <!-- Modal Body -->
             <div class="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
                 <!-- Photo Upload Area -->
-                <div class="group relative border-2 border-dashed border-[#ffd700]/30 rounded-xl p-8 flex flex-col items-center justify-center bg-[#ffd700]/5 hover:bg-[#ffd700]/10 hover:border-[#ffd700]/50 transition-all cursor-pointer">
-                    <div class="mb-4 h-16 w-16 rounded-full bg-[#ffd700]/20 flex items-center justify-center text-[#ffd700] group-hover:scale-110 transition-transform">
+                <div
+                    class="group relative border-2 border-dashed border-[#ffd700]/30 rounded-xl p-8 flex flex-col items-center justify-center bg-[#ffd700]/5 hover:bg-[#ffd700]/10 hover:border-[#ffd700]/50 transition-all cursor-pointer">
+                    <div
+                        class="mb-4 h-16 w-16 rounded-full bg-[#ffd700]/20 flex items-center justify-center text-[#ffd700] group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-4xl">add_a_photo</span>
                     </div>
                     <p class="text-white font-semibold">Click to upload photo</p>
                     <p class="text-slate-400 text-xs mt-1">Supports JPG, PNG (Max 5MB)</p>
                 </div>
-                
+
                 <!-- Category Selector -->
                 <div>
                     <p class="text-slate-100 font-medium mb-3">Select Category</p>
                     <div class="flex flex-wrap gap-3">
-                        <button class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ffd700] text-background-dark font-bold text-sm shadow-lg shadow-[#ffd700]/20 transition-all" data-category="full">
+                        <button
+                            class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ffd700] text-background-dark font-bold text-sm shadow-lg shadow-[#ffd700]/20 transition-all"
+                            data-category="full">
                             <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
                             Full Bin
                         </button>
-                        <button class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-slate-100 hover:bg-white/20 font-medium text-sm transition-all" data-category="trash">
+                        <button
+                            class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-slate-100 hover:bg-white/20 font-medium text-sm transition-all"
+                            data-category="trash">
                             <span class="material-symbols-outlined text-[18px]">cleaning_services</span>
                             Trash around bin
                         </button>
-                        <button class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-slate-100 hover:bg-white/20 font-medium text-sm transition-all" data-category="damaged">
+                        <button
+                            class="category-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-slate-100 hover:bg-white/20 font-medium text-sm transition-all"
+                            data-category="damaged">
                             <span class="material-symbols-outlined text-[18px]">build</span>
                             Damaged bin
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Additional Details -->
                 <div class="space-y-2">
                     <label class="text-slate-100 font-medium text-sm">Additional Details (Optional)</label>
-                    <textarea id="reportDetails" class="w-full bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:ring-[#ffd700] focus:border-[#ffd700] px-4 py-3 text-sm" placeholder="Any specific instructions for the collection team?" rows="3"></textarea>
+                    <textarea id="reportDetails"
+                        class="w-full bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:ring-[#ffd700] focus:border-[#ffd700] px-4 py-3 text-sm"
+                        placeholder="Any specific instructions for the collection team?" rows="3"></textarea>
                 </div>
             </div>
-            
+
             <!-- Modal Footer -->
             <div class="p-6 bg-white/5 flex gap-3">
-                <button onclick="closeReportModal()" class="flex-1 px-6 py-3 rounded-lg border border-white/10 text-white font-semibold hover:bg-white/5 transition-colors">
+                <button onclick="closeReportModal()"
+                    class="flex-1 px-6 py-3 rounded-lg border border-white/10 text-white font-semibold hover:bg-white/5 transition-colors">
                     Cancel
                 </button>
-                <button onclick="submitReport()" class="flex-[2] px-6 py-3 rounded-lg bg-[#ffd700] text-background-dark font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                <button onclick="submitReport()"
+                    class="flex-[2] px-6 py-3 rounded-lg bg-[#ffd700] text-background-dark font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined">send</span>
                     Submit Report
                 </button>
@@ -1260,7 +1567,7 @@
         function showCitizenPage() {
             hideAllPages();
             document.getElementById('binsPage').classList.remove('hidden');
-            
+
             if (!userLocation) {
                 getUserLocation();
             } else {
@@ -1271,7 +1578,7 @@
         function showTeamLoginPage() {
             hideAllPages();
             document.getElementById('teamLoginPage').classList.remove('hidden');
-            
+
             // Reset team variables
             currentTown = null;
             currentHQ = null;
@@ -1280,7 +1587,7 @@
         function showTeamDashboard() {
             hideAllPages();
             document.getElementById('teamDashboardPage').classList.remove('hidden');
-            
+
             // Re-initialize map if we have data
             if (currentTown && currentHQ) {
                 setTimeout(() => {
@@ -1299,15 +1606,15 @@
                 showTeamLoginPage();
                 return;
             }
-            
+
             hideAllPages();
             document.getElementById('aiAnalysisPage').classList.remove('hidden');
             document.getElementById('aiTownName').textContent = currentTown;
-            
+
             const townBins = BINS.filter(bin => bin.area.includes(currentTown));
             const criticalBins = townBins.filter(bin => bin.fill >= 75 && bin.fill <= 100);
             const grid = document.getElementById('criticalBinsGrid');
-            
+
             if (criticalBins.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-12">
@@ -1318,7 +1625,7 @@
                 `;
                 return;
             }
-            
+
             grid.innerHTML = criticalBins.map(bin => `
                 <div class="critical-card pop-hover">
                     <div class="warning-badge">⚠️ CRITICAL</div>
@@ -1354,7 +1661,7 @@
             selectedBinId = binId;
             hideAllPages();
             document.getElementById('detailPage').classList.remove('hidden');
-            
+
             const bin = BINS.find(b => b.id === binId);
             if (bin) {
                 document.getElementById('detailArea').textContent = bin.area;
@@ -1362,7 +1669,7 @@
                 document.getElementById('detailFillBar').style.width = bin.fill + '%';
                 document.getElementById('reportBinId').textContent = `Bin ID: PN-${bin.id}`;
             }
-            
+
             setTimeout(() => {
                 if (citizenMap) {
                     citizenMap.remove();
@@ -1385,10 +1692,10 @@
         // ========== REPORT MODAL FUNCTIONS ==========
         function showReportModal() {
             document.getElementById('reportModal').classList.add('show');
-            
+
             // Setup category buttons
             document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     document.querySelectorAll('.category-btn').forEach(b => {
                         b.classList.remove('bg-[#ffd700]', 'text-background-dark', 'font-bold');
                         b.classList.add('bg-white/10', 'text-slate-100', 'font-medium');
@@ -1408,7 +1715,7 @@
             const details = document.getElementById('reportDetails').value;
             const category = selectedCategory;
             const binId = document.getElementById('reportBinId').textContent;
-            
+
             alert(`Report submitted successfully!\nBin: ${binId}\nCategory: ${category}\nDetails: ${details || 'No details provided'}`);
             closeReportModal();
         }
@@ -1418,7 +1725,7 @@
             const hq = document.getElementById('teamHQ').value;
             const townSelect = document.getElementById('teamTown');
             townSelect.innerHTML = '<option value="">Select Town</option>';
-            
+
             if (hq && HQ_DATA[hq]) {
                 HQ_DATA[hq].towns.forEach(town => {
                     const option = document.createElement('option');
@@ -1432,19 +1739,19 @@
         function teamLogin() {
             const hq = document.getElementById('teamHQ').value;
             const town = document.getElementById('teamTown').value;
-            
+
             if (!hq || !town) {
                 alert('Please select both HQ and Town');
                 return;
             }
-            
+
             currentHQ = hq;
             currentTown = town;
             document.getElementById('townName').textContent = town;
-            
+
             showTeamDashboard();
             loadTeamData(town);
-            
+
             // Initialize map after a short delay
             setTimeout(() => {
                 if (teamMap) {
@@ -1468,20 +1775,20 @@
                 fullMap.remove();
                 fullMap = null;
             }
-            
+
             // Reset form
             document.getElementById('teamHQ').value = '';
             document.getElementById('teamTown').innerHTML = '<option value="">First select HQ</option>';
             currentTown = null;
             currentHQ = null;
-            
+
             // Go to login page
             showTeamLoginPage();
         }
 
         function loadTeamData(town) {
             const townBins = BINS.filter(bin => bin.area.includes(town));
-            
+
             const stats = {
                 zero: townBins.filter(b => b.fill === 0).length,
                 twentyFive: townBins.filter(b => b.fill > 0 && b.fill <= 25).length,
@@ -1518,7 +1825,7 @@
                 const color = bin.fill < 50 ? 'border-l-[#84cc16]' : bin.fill < 80 ? 'border-l-yellow-500' : 'border-l-red-500';
                 const status = bin.fill < 50 ? 'Normal' : bin.fill < 80 ? 'Warning' : 'Critical';
                 const statusColor = bin.fill < 50 ? 'text-[#84cc16] bg-[#84cc16]/20' : bin.fill < 80 ? 'text-yellow-500 bg-yellow-500/20' : 'text-red-500 bg-red-500/20';
-                
+
                 return `
                     <div onclick="selectTeamBin(${bin.id})" class="glass-card rounded-2xl p-4 border-l-4 ${color} hover:bg-white/5 transition-all cursor-pointer pop-hover">
                         <div class="flex justify-between items-start">
@@ -1546,9 +1853,9 @@
             if (teamMap) {
                 teamMap.remove();
             }
-            
+
             teamMap = L.map('teamMap').setView([18.5204, 73.8567], 11);
-            
+
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 attribution: '©OpenStreetMap, ©CartoDB',
                 subdomains: 'abcd',
@@ -1561,14 +1868,14 @@
             if (!userLocation) {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
-                        function(position) {
+                        function (position) {
                             userLocation = {
                                 lat: position.coords.latitude,
                                 lng: position.coords.longitude
                             };
                             addTeamMapMarkers();
                         },
-                        function(error) {
+                        function (error) {
                             userLocation = { lat: 18.5204, lng: 73.8567 };
                             addTeamMapMarkers();
                         }
@@ -1622,8 +1929,8 @@
                         iconAnchor: [20, 20]
                     })
                 }).addTo(teamMap).bindPopup(`${bin.area}<br>Fill: ${bin.fill}%`);
-                
-                marker.on('click', function() {
+
+                marker.on('click', function () {
                     selectTeamBin(bin.id);
                 });
             });
@@ -1641,20 +1948,20 @@
         function formatRouteInstructions(route, map, routeControl) {
             let instructions = '';
             let totalDistance = 0;
-            
+
             route.instructions.forEach((inst, index) => {
                 const distance = inst.distance ? (inst.distance / 1000).toFixed(1) : 0;
                 totalDistance += inst.distance || 0;
-                
+
                 let instructionText = inst.text;
                 if (inst.road) {
                     instructionText += ` onto ${inst.road}`;
                 }
-                
+
                 // Store the coordinates for this instruction
                 const lat = inst.latLng ? inst.latLng.lat : null;
                 const lng = inst.latLng ? inst.latLng.lng : null;
-                
+
                 instructions += `
                     <div class="route-instruction-item cursor-pointer hover:bg-[#ffd700]/20 transition-all p-2 rounded-lg" data-index="${index}" data-lat="${lat}" data-lng="${lng}">
                         <div class="flex justify-between">
@@ -1665,10 +1972,10 @@
                     </div>
                 `;
             });
-            
+
             const totalKm = (totalDistance / 1000).toFixed(1);
             const totalMin = Math.round(totalDistance / 1000 * 2);
-            
+
             return {
                 html: `
                     <div class="mb-2 p-2 gold-bg rounded-lg">
@@ -1691,11 +1998,11 @@
         function selectTeamBin(binId) {
             teamSelectedBin = binId;
             const bin = BINS.find(b => b.id === binId);
-            
+
             if (bin && teamMap && userLocation) {
                 document.getElementById('routeLoading').classList.add('show');
                 document.getElementById('routeInstructions').classList.remove('show');
-                
+
                 if (teamRoute) {
                     teamMap.removeControl(teamRoute);
                     teamRoute = null;
@@ -1714,17 +2021,17 @@
                             timeout: 10000
                         }).addTo(teamMap);
 
-                        teamRoute.on('routesfound', function(e) {
+                        teamRoute.on('routesfound', function (e) {
                             document.getElementById('routeLoading').classList.remove('show');
-                            
+
                             const routes = e.routes;
                             if (routes && routes.length > 0) {
                                 const route = routes[0];
-                                
+
                                 // Extract coordinates for each instruction from the route geometry
                                 const instructions = [];
                                 let lastIdx = 0;
-                                
+
                                 route.instructions.forEach((inst, index) => {
                                     // Get the coordinate for this instruction from the route's coordinates array
                                     const idx = inst.index || 0;
@@ -1740,20 +2047,20 @@
                                         });
                                     }
                                 });
-                                
+
                                 // Build HTML with instructions
                                 let instructionsHtml = '';
                                 let totalDistance = 0;
-                                
+
                                 instructions.forEach(inst => {
                                     const distance = inst.distance ? (inst.distance / 1000).toFixed(1) : 0;
                                     totalDistance += inst.distance || 0;
-                                    
+
                                     let instructionText = inst.text;
                                     if (inst.road) {
                                         instructionText += ` onto ${inst.road}`;
                                     }
-                                    
+
                                     instructionsHtml += `
                                         <div class="route-instruction-item cursor-pointer hover:bg-[#ffd700]/20 transition-all p-2 rounded-lg" 
                                             data-lat="${inst.lat}" data-lng="${inst.lng}" data-index="${inst.index}">
@@ -1765,10 +2072,10 @@
                                         </div>
                                     `;
                                 });
-                                
+
                                 const totalKm = (totalDistance / 1000).toFixed(1);
                                 const totalMin = Math.round(totalDistance / 1000 * 2);
-                                
+
                                 document.getElementById('instructionsList').innerHTML = `
                                     <div class="mb-2 p-2 gold-bg rounded-lg">
                                         <div class="flex justify-between text-sm">
@@ -1782,23 +2089,23 @@
                                     </div>
                                     ${instructionsHtml}
                                 `;
-                                
+
                                 document.getElementById('routeInstructions').classList.add('show');
-                                
+
                                 // Add click handlers to instruction items
                                 setTimeout(() => {
                                     document.querySelectorAll('#instructionsList .route-instruction-item').forEach(item => {
-                                        item.addEventListener('click', function() {
+                                        item.addEventListener('click', function () {
                                             const lat = this.dataset.lat;
                                             const lng = this.dataset.lng;
                                             const index = this.dataset.index;
-                                            
+
                                             if (lat && lng) {
                                                 // Remove any existing highlight marker
                                                 if (window.highlightMarker) {
                                                     teamMap.removeLayer(window.highlightMarker);
                                                 }
-                                                
+
                                                 // Add a temporary highlight marker
                                                 window.highlightMarker = L.marker([parseFloat(lat), parseFloat(lng)], {
                                                     icon: L.divIcon({
@@ -1808,10 +2115,10 @@
                                                         iconAnchor: [12, 12]
                                                     })
                                                 }).addTo(teamMap).bindPopup(`<b>Step ${parseInt(index) + 1}</b><br>${this.querySelector('span').textContent.split('.')[1]?.trim() || 'Turn here'}`).openPopup();
-                                                
+
                                                 // Center map on that location with zoom
                                                 teamMap.setView([parseFloat(lat), parseFloat(lng)], 17);
-                                                
+
                                                 // Add a slight highlight to the clicked instruction
                                                 document.querySelectorAll('#instructionsList .route-instruction-item').forEach(el => {
                                                     el.classList.remove('bg-[#ffd700]/30');
@@ -1845,9 +2152,9 @@
             if (fullMap) {
                 fullMap.remove();
             }
-            
+
             fullMap = L.map('fullMap').setView([18.5204, 73.8567], 11);
-            
+
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 attribution: '©OpenStreetMap, ©CartoDB',
                 subdomains: 'abcd',
@@ -1911,7 +2218,7 @@
         // ========== CITIZEN FUNCTIONS ==========
         function getUserLocation() {
             document.getElementById('binsGrid').innerHTML = '<div class="col-span-full text-center py-12"><div class="animate-spin inline-block w-8 h-8 border-4 border-[#ffd700] border-t-transparent rounded-full"></div><p class="mt-4 text-slate-400">Getting your location...</p></div>';
-            
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     pos => {
@@ -1933,10 +2240,10 @@
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * 
-                    Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return Math.round(R * c * 10) / 10;
         }
 
@@ -1964,12 +2271,12 @@
 
         function displayBinsGrid(bins) {
             const grid = document.getElementById('binsGrid');
-            
+
             if (bins.length === 0) {
                 grid.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400">No bins found within 10km radius</div>';
                 return;
             }
-            
+
             grid.innerHTML = bins.map(bin => {
                 const colorClass = getFillColor(bin.fill);
                 return `
@@ -1987,9 +2294,9 @@
             if (citizenMap) {
                 citizenMap.remove();
             }
-            
+
             citizenMap = L.map('map').setView([18.5204, 73.8567], 13);
-            
+
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 attribution: '©OpenStreetMap, ©CartoDB',
                 subdomains: 'abcd',
@@ -2002,7 +2309,7 @@
             if (bin && userLocation) {
                 document.getElementById('routeLoading').classList.add('show');
                 document.getElementById('citizenRouteInstructions').classList.remove('show');
-                
+
                 L.marker([userLocation.lat, userLocation.lng], {
                     icon: L.divIcon({
                         html: '<div class="user-marker">📍</div>',
@@ -2035,20 +2342,20 @@
                     lineOptions: {
                         styles: [{ color: '#3b82f6', weight: 5 }]
                     },
-                    createMarker: function() { return null; },
+                    createMarker: function () { return null; },
                     timeout: 10000
                 }).addTo(citizenMap);
 
-                citizenRoute.on('routesfound', function(e) {
+                citizenRoute.on('routesfound', function (e) {
                     document.getElementById('routeLoading').classList.remove('show');
-                    
+
                     const routes = e.routes;
                     if (routes && routes.length > 0) {
                         const route = routes[0];
-                        
+
                         // Extract coordinates for each instruction from the route geometry
                         const instructions = [];
-                        
+
                         route.instructions.forEach((inst, index) => {
                             // Get the coordinate for this instruction from the route's coordinates array
                             const idx = inst.index || 0;
@@ -2064,20 +2371,20 @@
                                 });
                             }
                         });
-                        
+
                         // Build HTML with instructions
                         let instructionsHtml = '';
                         let totalDistance = 0;
-                        
+
                         instructions.forEach(inst => {
                             const distance = inst.distance ? (inst.distance / 1000).toFixed(1) : 0;
                             totalDistance += inst.distance || 0;
-                            
+
                             let instructionText = inst.text;
                             if (inst.road) {
                                 instructionText += ` onto ${inst.road}`;
                             }
-                            
+
                             instructionsHtml += `
                                 <div class="route-instruction-item cursor-pointer hover:bg-[#ffd700]/20 transition-all p-2 rounded-lg" 
                                     data-lat="${inst.lat}" data-lng="${inst.lng}" data-index="${inst.index}">
@@ -2089,10 +2396,10 @@
                                 </div>
                             `;
                         });
-                        
+
                         const totalKm = (totalDistance / 1000).toFixed(1);
                         const totalMin = Math.round(totalDistance / 1000 * 2);
-                        
+
                         document.getElementById('citizenInstructionsList').innerHTML = `
                             <div class="mb-2 p-2 gold-bg rounded-lg">
                                 <div class="flex justify-between text-sm">
@@ -2106,23 +2413,23 @@
                             </div>
                             ${instructionsHtml}
                         `;
-                        
+
                         document.getElementById('citizenRouteInstructions').classList.add('show');
-                        
+
                         // Add click handlers to instruction items
                         setTimeout(() => {
                             document.querySelectorAll('#citizenInstructionsList .route-instruction-item').forEach(item => {
-                                item.addEventListener('click', function() {
+                                item.addEventListener('click', function () {
                                     const lat = this.dataset.lat;
                                     const lng = this.dataset.lng;
                                     const index = this.dataset.index;
-                                    
+
                                     if (lat && lng) {
                                         // Remove any existing highlight marker
                                         if (window.citizenHighlightMarker) {
                                             citizenMap.removeLayer(window.citizenHighlightMarker);
                                         }
-                                        
+
                                         // Add a temporary highlight marker
                                         window.citizenHighlightMarker = L.marker([parseFloat(lat), parseFloat(lng)], {
                                             icon: L.divIcon({
@@ -2132,10 +2439,10 @@
                                                 iconAnchor: [12, 12]
                                             })
                                         }).addTo(citizenMap).bindPopup(`<b>Step ${parseInt(index) + 1}</b><br>${this.querySelector('span').textContent.split('.')[1]?.trim() || 'Turn here'}`).openPopup();
-                                        
+
                                         // Center map on that location with zoom
                                         citizenMap.setView([parseFloat(lat), parseFloat(lng)], 17);
-                                        
+
                                         // Add a slight highlight to the clicked instruction
                                         document.querySelectorAll('#citizenInstructionsList .route-instruction-item').forEach(el => {
                                             el.classList.remove('bg-[#ffd700]/30');
@@ -2148,7 +2455,7 @@
                     }
                 });
 
-                citizenRoute.on('routingerror', function() {
+                citizenRoute.on('routingerror', function () {
                     document.getElementById('routeLoading').classList.remove('show');
                     alert('Could not calculate route. Please try again.');
                 });
@@ -2162,20 +2469,21 @@
 
         function updateBinFill(percentage) {
             if (!selectedBinId) return;
-            
+
             const bin = BINS.find(b => b.id === selectedBinId);
             if (bin) {
                 bin.fill = percentage;
-                
+
                 document.getElementById('detailFill').textContent = percentage + '%';
                 document.getElementById('detailFillBar').style.width = percentage + '%';
             }
         }
 
         // Initialize on load
-        window.onload = function() {
+        window.onload = function () {
             showLandingPage();
         };
     </script>
 </body>
+
 </html>
